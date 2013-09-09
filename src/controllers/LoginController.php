@@ -50,6 +50,10 @@ class LoginController
 
         $output .= $this->loginView->getHTML();
 
+<<<<<<< HEAD
+=======
+        // FIXME: Set this in the constructor
+>>>>>>> 9efdcf6dfb174843a28d33cf231621f18ab55053
         $output .= $this->dateTimeView->getHTML();
 
         return $output;
