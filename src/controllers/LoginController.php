@@ -37,10 +37,9 @@ class LoginController
 
     public function __construct()
     {
-
         // Create instances
         $this->loginView = new LoginView();
-        $this->dateTimeView = new DateTimeView('sv_SE');
+        $this->dateTimeView = new DateTimeView('sv_SE', '%A, den %e %B år %Y. Klockan är [%H:%M:%S].');
     }
 
     public function logIn()
@@ -50,6 +49,7 @@ class LoginController
         $output = '';
 
         $output .= $this->loginView->getHTML();
+
         $output .= $this->dateTimeView->getHTML();
 
         return $output;
@@ -67,7 +67,7 @@ class LoginController
                 try {
                     $user = UserModel::authorizeUser($this->loginView->getPostUserName(), $this->loginView->getPostPassword());
                 } catch (\Exception $ex) {
-                    $this->loginView->showValidationError($ex->getMessage());
+                    $this->loginView->showFailedLogin();
                 }
             }
 
