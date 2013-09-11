@@ -55,6 +55,7 @@ class LoginController
         $this->appView = new AppView();
     }
 
+    // FIXME: This code is shit
     public function logIn()
     {
         $loginHTML;
@@ -72,8 +73,17 @@ class LoginController
             // Don't give a shit
         }
 
+        if (isset($user)) {
+
+            if ($this->appView->userWantsToLogOut()) {
+                // Log out
+                $this->userSaverModel->remove();
+                $this->loginView->showLogoutSuccess();
+                $loginHTML = $this->loginView->getFormHTML();
+            }
+
         // If not set from session
-        if (! isset($user)) {
+        } else {
 
             // When ?login is hit
             if ($this->appView->userWantsToLogIn()) {

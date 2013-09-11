@@ -23,7 +23,7 @@ class UserSaverModel
     {
         if ($this->validate()) {
             // This is the worst line of code in human history
-            return new UserModel($_SESSION['LoggedInAs'], 'LOLThisIsNotEvenTheCorrectPassword', 1);
+            return new UserModel($_SESSION['LoggedInAs'], 'LOLThisIsNotEvenTheCorrectPassword', UserModel::AUTHORIZED_BY_SESSION);
         }
         throw new \Exception('Not logged in');
     }
@@ -38,6 +38,13 @@ class UserSaverModel
 
         // FIXME: Very secure.
         $_SESSION['LoggedInAs'] = $userModel->getUsername();
+    }
+
+    public function remove()
+    {
+        unset($_SESSION['UserAgent']);
+        unset($_SESSION['IPAddr']);
+        unset($_SESSION['LoggedInAs']);
     }
 
     /**
