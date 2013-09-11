@@ -2,22 +2,35 @@
 
 namespace helpers;
 
-class Autoloader
+class AutoLoader
 {
-    public function __construct()
+    /**
+     * Path to root of includes
+     * @var string path
+     */
+    private $root;
+
+    /**
+     * Register autoloader
+     */
+    public function __construct($path)
     {
-        spl_autoload_register(array($this, 'autoload'));
+        $this->root = $path;
+    }
+
+    public function register()
+    {
+        spl_autoload_register(array($this, 'loadClass'));
     }
 
     /**
      * Autoload classes
      *
      * @param string $class
-     * @return void
      */
-    function autoload($class)
+    private function loadClass($class)
     {
-        $file = str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
-        require($file);
+        $path = str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
+        require($this->root . $path);
     }
 }
