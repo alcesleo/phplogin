@@ -10,6 +10,7 @@ class UserModel
     const NOT_AUTHORIZED = 0;
     const AUTHORIZED_BY_USER = 1;
     const AUTHORIZED_BY_COOKIES = 2;
+    const AUTHORIZED_BY_SESSION = 3;
 
     /**
      * @var string
