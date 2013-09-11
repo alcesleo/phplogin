@@ -27,11 +27,11 @@ class LoginView
     private static $sessionCredentials = 'PersistLogin';
 
     // Errors
-    private $validationErrorMessage;
+    private $notificationMessage;
     private static $errorUsernameNotSet = 'Användarnamn saknas';
     private static $errorPasswordNotSet = 'Lösenord saknas';
     private static $errorWrongCredentials = 'Felaktigt användarnamn och/eller lösenord.';
-
+    private static $loggedOutSuccess = "Du har nu loggat ut";
 
     public function __construct(LoginModel $loginModel)
     {
@@ -65,6 +65,12 @@ class LoginView
         }
 
         return true;
+    }
+
+    public function showLogoutSuccess()
+    {
+        // TODO: Change name of this function to imply notification
+        $this->showFormError(self::$loggedOutSuccess);
     }
 
     public function showLoginFailed()
@@ -105,15 +111,7 @@ class LoginView
 
     private function showFormError($message)
     {
-        $this->validationErrorMessage = $message;
-    }
-
-    public function getHTML()
-    {
-        if (isset($this->user) && $this->user->isAuthorized()) {
-            return $this->getWelcomeHTML();
-        }
-        return $this->getFormHTML();
+        $this->notificationMessage = $message;
     }
 
     public function getWelcomeHTML()
@@ -130,7 +128,7 @@ class LoginView
     {
         // Declare strings to be interpolated
         $legend = "Log in - please insert credentials";
-        $error = $this->validationErrorMessage ? "<p>$this->validationErrorMessage</p>" : '';
+        $error = $this->notificationMessage ? "<p>$this->notificationMessage</p>" : '';
 
         // Persist value from checkbox
         $checked = $this->getPostStayLoggedIn() ? 'checked=\"checked\"' : '';
