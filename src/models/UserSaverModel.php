@@ -46,6 +46,10 @@ class UserSaverModel
      */
     private function validate()
     {
+        if (! isset($_SESSION['UserAgent']) || ! isset($_SESSION['IPAddr'])) {
+            return false;
+        }
+
         if ($_SESSION['UserAgent'] != $_SERVER['HTTP_USER_AGENT']) {
             return false;
         }

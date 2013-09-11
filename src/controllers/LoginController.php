@@ -4,6 +4,7 @@ namespace controllers;
 
 use models\LoginModel;
 use models\UserDatabaseModel as UserDAO;
+use models\UserSaverModel;
 use models\UserModel;
 use views\LoginView;
 use views\DateTimeView;
@@ -33,6 +34,7 @@ class LoginController
 {
 
     private $loginModel;
+    private $userSaverModel;
 
     // Views
     private $loginView;
@@ -43,6 +45,7 @@ class LoginController
     public function __construct()
     {
         $this->loginModel = new LoginModel();
+        $this->userSaverModel = new UserSaverModel();
 
         // Create instances
         $this->loginView = new LoginView($this->loginModel);
@@ -56,31 +59,56 @@ class LoginController
     {
         $loginHTML;
         $dateHTML;
+        $user;
 
-        // When ?login is hit
-        if ($this->appView->userWantsToLogIn()) {
+        // Try to load from session
+        try {
+            $user = $this->userSaverModel->load();
 
-            // Validate form
-            if ($this->loginView->validateFormInput()) {
+            // FIXME: Copy pasta
+            $this->loginView->showLoginSuccess($user);
+            $loginHTML = $this->loginView->getWelcomeHTML();
+        } catch (\Exception $ex) {
+            // Don't give a shit
+        }
 
-                // Authorize user
-                try {
-                    $user = UserModel::authorizeUser($this->loginView->getPostUserName(), $this->loginView->getPostPassword());
-                    // TODO: Unfuck this up.
+        // If not set from session
+        if (! isset($user)) {
 
-                    $this->loginView->showLoginSuccess($user);
-                    $loginHTML = $this->loginView->getWelcomeHTML();
-                    $this->loginView->setSessionCredentials($user);
-                } catch (\Exception $ex) {
-                    $loginHTML = $this->loginView->showLoginFailed();
+            // When ?login is hit
+            if ($this->appView->userWantsToLogIn()) {
+
+                // Check session credentials
+                // TODO Check this on other screens as well?
+
+                // Validate form
+                if ($this->loginView->validateFormInput()) {
+
+                    // Authorize user
+                    try {
+                        $user = UserModel::authorizeUser($this->loginView->getPostUserName(), $this->loginView->getPostPassword());
+                        // TODO: Unfuck this up.
+
+                        $this->loginView->showLoginSuccess($user);
+                        $loginHTML = $this->loginView->getWelcomeHTML();
+
+                        // Save the user session
+                        $this->userSaverModel->save($user);
+
+                    } catch (\Exception $ex) {
+                        $loginHTML = $this->loginView->showLoginFailed();
+                    }
+
+                // DRY as fuck.
+                } else {
+                    $loginHTML = $this->loginView->getFormHTML();
                 }
             } else {
                 $loginHTML = $this->loginView->getFormHTML();
             }
-        } else {
-            $loginHTML = $this->loginView->getFormHTML();
-        }
 
+        }
+        // Print out the page
         $dateHTML = $this->dateTimeView->getHTML();
         print $this->appView->getHTML($loginHTML, $dateHTML);
 

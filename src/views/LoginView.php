@@ -48,37 +48,6 @@ class LoginView
 
     }
 
-    /**
-     * @return string credential string, or empty string if not set
-     */
-    public function getSessionCredentials()
-    {
-        return isset($_SESSION[self::$sessionCredentials]) ? $_SESSION[self::$sessionCredentials] : '';
-    }
-
-    // TODO: Get $user from loginmodel...
-    public function validateSessionCredentials($user)
-    {
-        return ($this->getSessionCredentials === $this->createCredentialString($user));
-    }
-
-    // TODO: Get the usermodel from the loginModel...?
-    public function setSessionCredentials(\models\UserModel $user)
-    {
-        $_SESSION[self::$sessionCredentials] = $this->createCredentialString($user);
-    }
-
-    // TODO: Move this where it belongs
-    // TODO: Don't need $user..?
-    /**
-     * Create a credential string based on the username, useragent and remote IP:
-     * @param  [type] $user [description]
-     * @return [type]       [description]
-     */
-    private function createCredentialString($user)
-    {
-        return md5($user->getUsername() . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['REMOTE_ADDR']);
-    }
 
     /**
      * @return boolean
@@ -168,6 +137,8 @@ class LoginView
 
         // Construct the form
         return "
+        <h2>Ej inloggad</h2>
+
         <form action='?" . self::$login . "' method='post'>
             <fieldset>
                 <legend>$legend</legend>

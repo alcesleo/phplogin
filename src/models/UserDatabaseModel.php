@@ -25,11 +25,4 @@ class UserDatabaseModel
     {
         return self::$users[$username];
     }
-
-    public static function saveUser(UserModel $user)
-    {
-        // Save user in cookies?
-        // setcookie()
-    }
-
 }
