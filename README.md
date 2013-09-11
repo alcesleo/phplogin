@@ -1,14 +1,6 @@
-# LNU - OOP med PHP
+# A login-page written in PHP.
 
-array med inloggning till att börja med
+This repo is completely filled with bad solutions. It is no good to anyone other than a fantastic example of badly written code.
 
-## TODO
 
-- session hijacking
-- header view
-- validateForm
-- salt
-- messages array
-- phpunit
-- composer?
-- validation
+
