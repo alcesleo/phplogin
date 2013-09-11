@@ -10,4 +10,3 @@ use controllers\LoginController;
 // Fire it up!
 $loginCtrl = new LoginController();
 echo $loginCtrl->logIn();
-
