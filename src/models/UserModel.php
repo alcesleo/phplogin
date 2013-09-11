@@ -6,7 +6,6 @@ use models\UserDatabaseModel as UserDB;
 
 class UserModel
 {
-
     // Authorization levels
     const NOT_AUTHORIZED = 0;
     const AUTHORIZED_BY_USER = 1;
@@ -28,10 +27,12 @@ class UserModel
      */
     private $authorization;
 
-    public function __construct($username, $password, $authorization = 0)
+    public function __construct($username, $password, $authorization = self::NOT_AUTHORIZED)
     {
         $this->setUsername($username);
         $this->setPassword($password);
+
+        $this->authorization = $authorization;
     }
 
     /**
@@ -39,8 +40,12 @@ class UserModel
      */
     public function setUsername($username)
     {
-
         $this->username = $username;
+    }
+
+    public function getUsername()
+    {
+        return $this->username;
     }
 
     /**
@@ -53,6 +58,11 @@ class UserModel
         }
 
         $this->password = $password;
+    }
+
+    public function isAuthorized()
+    {
+        return $this->authorization > 0;
     }
 
     /**

@@ -7,15 +7,12 @@ use \views\DateTimeView;
 
 class AppView
 {
-    // TODO: Remove these in LoginView
-    private static loginPage = 'login';
-    private static logoutPage = 'logout';
+    private static $loginPage = 'login';
+    private static $logoutPage = 'logout';
 
-    public function getHTML(LoginView $loginView, DateTimeView $dateTimeView)
+    public function getHTML($loginHTML, $dateHTML)
     {
         $title = 'PHPLogin';
-        $loginHTML = $loginView->getHTML();
-        $dateHTML = $dateTimeView->getHTML();
 
         return "
             <!DOCTYPE html>
@@ -25,6 +22,7 @@ class AppView
                 <title>$title</title>
             </head>
             <body>
+                <h1>PHPLogin</h1>
                 $loginHTML
                 $dateHTML
             </body>

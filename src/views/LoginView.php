@@ -2,16 +2,18 @@
 
 namespace views;
 
-use models\UserModel;
+use \models\LoginModel;
 
 /**
  * Handles the form where a user can log in, the associated messages etc.
  */
 class LoginView
 {
-    // The get variable to set when logging in
-    // e.g. redirect to /?login.
+    private $loginModel;
+
+    // TODO: Should these be in AppView...?
     private static $login = 'login';
+    private static $logout = 'logout';
 
     // Variable-names for the input form.
     private static $passwordName = 'LoginView::Password';
@@ -21,22 +23,19 @@ class LoginView
     private static $userNameID = 'UserNameID';
     private static $autoLoginID = 'AutologinID';
 
+    // Session/Cookie-names
+    private static $sessionCredentials = 'PersistLogin';
+
     // Errors
     private $validationErrorMessage;
     private static $errorUsernameNotSet = 'Användarnamn saknas';
     private static $errorPasswordNotSet = 'Lösenord saknas';
     private static $errorWrongCredentials = 'Felaktigt användarnamn och/eller lösenord.';
 
-    public function __construct()
-    {
-    }
 
-    /**
-     * @return boolean
-     */
-    public function userWantsToLogIn()
+    public function __construct(LoginModel $loginModel)
     {
-        return isset($_GET[self::$login]);
+        $this->loginModel = $loginModel;
     }
 
     /**
@@ -46,11 +45,39 @@ class LoginView
     public function setUserCookies(UserModel $user)
     {
         // TODO: Set cookies with the user credentials.
+
     }
 
-    public function showLoginSuccess(UserModel $user)
+    /**
+     * @return string credential string, or empty string if not set
+     */
+    public function getSessionCredentials()
     {
+        return isset($_SESSION[self::$sessionCredentials]) ? $_SESSION[self::$sessionCredentials] : '';
+    }
 
+    // TODO: Get $user from loginmodel...
+    public function validateSessionCredentials($user)
+    {
+        return ($this->getSessionCredentials === $this->createCredentialString($user));
+    }
+
+    // TODO: Get the usermodel from the loginModel...?
+    public function setSessionCredentials(\models\UserModel $user)
+    {
+        $_SESSION[self::$sessionCredentials] = $this->createCredentialString($user);
+    }
+
+    // TODO: Move this where it belongs
+    // TODO: Don't need $user..?
+    /**
+     * Create a credential string based on the username, useragent and remote IP:
+     * @param  [type] $user [description]
+     * @return [type]       [description]
+     */
+    private function createCredentialString($user)
+    {
+        return md5($user->getUsername() . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['REMOTE_ADDR']);
     }
 
     /**
@@ -59,17 +86,28 @@ class LoginView
     public function validateFormInput()
     {
         if (strlen(trim($this->getPostUserName())) == 0) {
-            $this->showValidationError(self::$errorUsernameNotSet);
+            $this->showFormError(self::$errorUsernameNotSet);
             return false;
         }
 
         if (strlen(trim($this->getPostPassword())) == 0) {
-            $this->showValidationError(self::$errorPasswordNotSet);
+            $this->showFormError(self::$errorPasswordNotSet);
             return false;
         }
 
         return true;
+    }
 
+    public function showLoginFailed()
+    {
+        $this->showFormError(self::$errorWrongCredentials);
+    }
+
+    public function showLoginSuccess(\models\UserModel $user)
+    {
+        // FIXME: Is this really the best way?
+        // This later gets checked in getHTML()
+        $this->user = $user;
     }
 
     /**
@@ -96,12 +134,30 @@ class LoginView
         return isset($_POST[self::$autoLoginName]) ? $_POST[self::$autoLoginName] : false;
     }
 
-    public function showValidationError($message)
+    private function showFormError($message)
     {
         $this->validationErrorMessage = $message;
     }
 
     public function getHTML()
+    {
+        if (isset($this->user) && $this->user->isAuthorized()) {
+            return $this->getWelcomeHTML();
+        }
+        return $this->getFormHTML();
+    }
+
+    public function getWelcomeHTML()
+    {
+        return "
+        <h2>" . $this->user->getUsername() . " är inloggad.</h2>
+        <p>Inloggning lyckades.</p>
+        <p><a href='?" . self::$logout . "'>Logga ut</a></p>
+        ";
+
+    }
+
+    public function getFormHTML()
     {
         // Declare strings to be interpolated
         $legend = "Log in - please insert credentials";

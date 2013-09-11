@@ -21,6 +21,9 @@ class DateTimeView
     {
         $this->locale = $locale;
         $this->format = $format;
+
+        // FIXME: Is this really the way to do this?
+        setlocale(LC_ALL, $this->locale);
     }
 
     /**
@@ -30,8 +33,6 @@ class DateTimeView
      */
     public function getHTML()
     {
-        // FIXME: Does this need to be set everytime?
-        setlocale(LC_ALL, $this->locale);
         $timestamp = strftime($this->format);
         return "<span class='timestamp'>$timestamp</span>";
     }
