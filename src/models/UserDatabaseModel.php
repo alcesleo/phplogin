@@ -12,7 +12,7 @@ class UserDatabaseModel
     // Temporary array of users
     // FIXME: Use localStorage or something to store this
     private static $users = array(
-        'userOne' => '5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8', // 'password'
+        'Admin' => '8be3c943b1609fffbfc51aad666d0a04adf83c9d', // 'Password'
         'userTwo' => 'd50f3d3d525303997d705f86cd80182365f964ed' // 'drowssap'
     );
 
