@@ -61,6 +61,11 @@ class UserModel
         $this->password = $password;
     }
 
+    public function getHash()
+    {
+        return sha1($this->password);
+    }
+
     public function isAuthorized()
     {
         return $this->authorization > 0;
@@ -74,13 +79,12 @@ class UserModel
         $this->authorization = $authLevel;
     }
 
-    /**
-     * Authorizes a user by matching the username against the password hash
-     * @param  string $username
-     * @param  string $password
-     * @return UserModel
-     */
-    public static function authorizeUser($username, $password)
+    public function getAutLevel()
+    {
+        return $this->authorization;
+    }
+
+    public static function authorizeUserWithHash($username, $hash, $authBy = 1)
     {
         // If user exists
         if (! UserDB::userExists($username)) {
@@ -88,12 +92,22 @@ class UserModel
         }
 
         // And is authorized
-        if (! UserDB::getPasswordHash($username) === sha1($password)) {
+        if (! UserDB::getPasswordHash($username) === $hash) {
             throw new \Exception('Username and password do not match');
         }
 
         // Return new authenticated user
-        return new UserModel($username, $password, self::AUTHORIZED_BY_USER);
+        return new UserModel($username, 'IReallyHopeThisIsntNeeded', $authBy);
+    }
 
+    /**
+     * Authorizes a user by matching the username against the password hash
+     * @param  string $username
+     * @param  string $password
+     * @return UserModel
+     */
+    public static function authorizeUser($username, $password, $authBy = 1)
+    {
+        return self::authorizeUserWithHash($username, sha1($password), $authBy);
     }
 }

@@ -62,7 +62,7 @@ class LoginController
         $dateHTML;
         $user;
 
-        // Try to load from session
+        // Log in with session
         try {
             $user = $this->userSaverModel->load();
 
@@ -73,18 +73,24 @@ class LoginController
             // Don't give a shit
         }
 
-        // If user has not been set from session
-        try {
-            $user = $this->loginView->getUserFromCookies();
+        // Log in with cookies
+        if (! isset($user)) {
+            try {
+                $user = $this->loginView->getUserFromCookies();
 
-            // FIXME: Copy pasta
-            $this->loginView->showLoginSuccess($user);
-            $loginHTML = $this->loginView->getWelcomeHTML();
-        } catch (\Exception $ex) {
-            // Don't give a shit
+                // FIXME: Copy pasta
+                $this->loginView->showLoginSuccess($user);
+                $loginHTML = $this->loginView->getWelcomeHTML();
+
+                // Save the user session
+                $this->userSaverModel->save($user);
+            } catch (\Exception $ex) {
+                // Don't give a shit
+            }
         }
-
         // If user has not been set from cookies
+
+        // Log out
         if (isset($user)) {
 
             if ($this->appView->userWantsToLogOut()) {
@@ -98,7 +104,7 @@ class LoginController
                 $loginHTML = $this->loginView->getFormHTML();
             }
 
-        // If not set from session
+        // Log in manually
         } else {
 
             // When ?login is hit
@@ -113,7 +119,7 @@ class LoginController
                     // Authorize user
                     try {
                         // This can fail
-                        $user = UserModel::authorizeUser($this->loginView->getPostUserName(), $this->loginView->getPostPassword());
+                        $user = UserModel::authorizeUser($this->loginView->getPostUserName(), $this->loginView->getPostPassword(), UserModel::AUTHORIZED_BY_USER);
 
                         // Stay logged in
                         if ($this->loginView->getPostStayLoggedIn()) {

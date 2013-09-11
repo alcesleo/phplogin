@@ -27,12 +27,14 @@ class LoginView
     // Session/Cookie-names
     private static $sessionCredentials = 'PersistLogin';
 
-    // Errors
+    // Notifications
     private $notificationMessage;
     private static $errorUsernameNotSet = 'Användarnamn saknas';
     private static $errorPasswordNotSet = 'Lösenord saknas';
     private static $errorWrongCredentials = 'Felaktigt användarnamn och/eller lösenord.';
     private static $loggedOutSuccess = "Du har nu loggat ut";
+
+    private $weWillRememberYou = false;
 
     public function __construct(LoginModel $loginModel)
     {
@@ -47,6 +49,14 @@ class LoginView
     {
         setcookie(self::$userNameName, $user->getUsername(), time() + 60);
         setcookie(self::$passwordName, $user->getHash(), time() + 60);
+    }
+
+    public function getUserFromCookies()
+    {
+        if (! isset($_COOKIE[self::$userNameName]) || ! isset($_COOKIE[self::$passwordName])) {
+            throw new \Exception("Cookies not set");
+        }
+        return UserModel::authorizeUser($_COOKIE[self::$userNameName], $_COOKIE[self::$passwordName], UserModel::AUTHORIZED_BY_COOKIES);
     }
 
     public function unsetUserCookies()
@@ -83,6 +93,11 @@ class LoginView
     public function showLoginFailed()
     {
         $this->showFormError(self::$errorWrongCredentials);
+    }
+
+    public function showWeWillRememberYou()
+    {
+        $this->weWillRememberYou = true;
     }
 
     public function showLoginSuccess(\models\UserModel $user)
@@ -123,9 +138,27 @@ class LoginView
 
     public function getWelcomeHTML()
     {
+        $authBy = '';
+
+        switch ($this->user->getAutLevel()) {
+            case UserModel:: AUTHORIZED_BY_SESSION:
+                $authBy = "";
+                break;
+            case UserModel::AUTHORIZED_BY_USER:
+                if ($this->weWillRememberYou) {
+                    $authBy = '<p>Inloggning lyckades och vi kommer ihåg dig till nästa gång.</p>';
+                } else {
+                    $authBy = "<p>Inloggning lyckades.</p>";
+                }
+                break;
+            case UserModel::AUTHORIZED_BY_COOKIES:
+                $authBy = "<p>Inloggning lyckades med hjälp av cookies.</p>";
+                break;
+        }
+
         return "
         <h2>" . $this->user->getUsername() . " är inloggad.</h2>
-        <p>Inloggning lyckades.</p>
+        $authBy
         <p><a href='?" . self::$logout . "'>Logga ut</a></p>
         ";
 
