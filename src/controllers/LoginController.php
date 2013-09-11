@@ -73,12 +73,28 @@ class LoginController
             // Don't give a shit
         }
 
+        // If user has not been set from session
+        try {
+            $user = $this->loginView->getUserFromCookies();
+
+            // FIXME: Copy pasta
+            $this->loginView->showLoginSuccess($user);
+            $loginHTML = $this->loginView->getWelcomeHTML();
+        } catch (\Exception $ex) {
+            // Don't give a shit
+        }
+
+        // If user has not been set from cookies
         if (isset($user)) {
 
             if ($this->appView->userWantsToLogOut()) {
                 // Log out
                 $this->userSaverModel->remove();
+
+                // Unset session and cookie
+                $this->loginView->unsetUserCookies();
                 $this->loginView->showLogoutSuccess();
+
                 $loginHTML = $this->loginView->getFormHTML();
             }
 
@@ -99,13 +115,15 @@ class LoginController
                         // This can fail
                         $user = UserModel::authorizeUser($this->loginView->getPostUserName(), $this->loginView->getPostPassword());
 
-                        // This is just here.
+                        // Stay logged in
+                        if ($this->loginView->getPostStayLoggedIn()) {
+                            $this->loginView->setUserCookies($user);
+                            $this->loginView->showWeWillRememberYou();
+                        }
+
                         $this->loginView->showLoginSuccess($user);
                         $loginHTML = $this->loginView->getWelcomeHTML();
 
-                        if ($this->loginView->getPostStayLoggedIn()) {
-                            $this->loginView->setUserCookies($user);
-                        }
 
                         // Save the user session
                         $this->userSaverModel->save($user);
