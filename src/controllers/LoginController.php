@@ -96,17 +96,25 @@ class LoginController
 
                     // Authorize user
                     try {
+                        // This can fail
                         $user = UserModel::authorizeUser($this->loginView->getPostUserName(), $this->loginView->getPostPassword());
+
+                        // This is just here.
+                        $this->loginView->showLoginSuccess($user);
+                        $loginHTML = $this->loginView->getWelcomeHTML();
+
+                        if ($this->loginView->getPostStayLoggedIn()) {
+                            $this->loginView->setUserCookies($user);
+                        }
+
+                        // Save the user session
+                        $this->userSaverModel->save($user);
+
                     } catch (\Exception $ex) {
-                        $loginHTML = $this->loginView->showLoginFailed();
+                        $this->loginView->showLoginFailed();
+                        $loginHTML = $this->loginView->getFormHTML();
                     }
 
-                    // TODO: Unfuck this up.
-                    $this->loginView->showLoginSuccess($user);
-                    $loginHTML = $this->loginView->getWelcomeHTML();
-
-                    // Save the user session
-                    $this->userSaverModel->save($user);
                 // DRY as fuck.
                 } else {
                     $loginHTML = $this->loginView->getFormHTML();
