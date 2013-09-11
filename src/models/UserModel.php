@@ -92,7 +92,7 @@ class UserModel
         }
 
         // And is authorized
-        if (! UserDB::getPasswordHash($username) === $hash) {
+        if (UserDB::getPasswordHash($username) != $hash) {
             throw new \Exception('Username and password do not match');
         }
 
