@@ -3,6 +3,7 @@
 namespace views;
 
 use \models\LoginModel;
+use \models\UserModel;
 
 /**
  * Handles the form where a user can log in, the associated messages etc.
@@ -44,10 +45,16 @@ class LoginView
      */
     public function setUserCookies(UserModel $user)
     {
-        // TODO: Set cookies with the user credentials.
-
+        setcookie(self::$userNameName, $user->getUsername(), time() + 60);
+        setcookie(self::$passwordName, $user->getHash(), time() + 60);
     }
 
+    public function unsetUserCookies()
+    {
+        // Set expiration to 0
+        setcookie(self::$userNameName, '', 0);
+        setcookie(self::$passwordName, '', 0);
+    }
 
     /**
      * @return boolean
@@ -106,7 +113,7 @@ class LoginView
      */
     public function getPostStayLoggedIn()
     {
-        return isset($_POST[self::$autoLoginName]) ? $_POST[self::$autoLoginName] : false;
+        return isset($_POST[self::$autoLoginName]) ? true : false;
     }
 
     private function showFormError($message)
