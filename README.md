@@ -2,7 +2,7 @@
 
 ## Opinions
 
-- Standards are PHP-FIG.
+- Standards are [PHP-FIG](http://http://www.php-fig.org/).
 - Composer does the autoloading.
 - MVC-classes have suffixes (`Model`|`View`|`Controller`) even though they are namespaced, because
     I want to know what the tabs in my editor goes to
