@@ -49,7 +49,7 @@ class LoginController
 
         // Create instances
         $this->loginView = new LoginView($this->loginModel);
-        $this->dateTimeView = new DateTimeView('sv_SE', '%A, den %e %B år %Y. Klockan är [%H:%M:%S].');
+        $this->dateTimeView = new DateTimeView('sv_SE.UTF-8', '%A, den %e %B år %Y. Klockan är [%H:%M:%S].');
 
         // TODO: Should this be passed in as a param?
         $this->appView = new AppView();
