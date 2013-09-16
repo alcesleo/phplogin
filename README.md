@@ -23,3 +23,6 @@ Then you're good to go. If it's not installed globally:
 
     # Run the local install
     php composer.phar install
+
+Both of these commands do the same thing - generate a `vendor`-directory with an autoloader
+and eventual dependencies.
