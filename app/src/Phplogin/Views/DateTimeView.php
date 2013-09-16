@@ -32,6 +32,6 @@ class DateTimeView
     public function getHTML()
     {
         $timestamp = strftime($this->format);
-        return "<span class='timestamp'>$timestamp</span>";
+        return "<p class='timestamp'>$timestamp</p>";
     }
 }
