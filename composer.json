@@ -11,6 +11,6 @@
 
     },
     "autoload": {
-        "psr-0": {"Phplogin\\": "src/"}
+        "psr-0": {"Phplogin\\": "app/src/"}
     }
 }
