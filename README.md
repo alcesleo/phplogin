@@ -1,3 +1,8 @@
 # A login-page written in PHP.
 
-This repo is completely filled with bad solutions. It is no good to anyone other than a fantastic example of badly written code.
+## Opinions
+
+- Standards are PHP-FIG.
+- Composer does the autoloading.
+- MVC-classes have suffixes (Model|View|Controller) even though they are namespaced, because
+    I want to know what the tabs in my editor goes to
