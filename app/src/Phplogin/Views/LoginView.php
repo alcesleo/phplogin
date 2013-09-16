@@ -167,7 +167,7 @@ class LoginView
     public function getFormHTML()
     {
         // Declare strings to be interpolated
-        $legend = "Log in - please insert credentials";
+        $legend = "Logga in - Skriv in användarnamn och lösenord";
         $error = $this->notificationMessage ? "<p>$this->notificationMessage</p>" : '';
 
         // Persist value from checkbox
@@ -183,13 +183,13 @@ class LoginView
 
                 $error
 
-                <label for='" . self::$userNameID . "'>Username:</label>
+                <label for='" . self::$userNameID . "'>Användarnamn:</label>
                 <input type='text' size='20' name='" . self::$userNameName . "' id='" . self::$userNameID . "' value='" . $this->getPostUserName() . "' />
 
-                <label for='" . self::$passwordID . "'>Password:</label>
+                <label for='" . self::$passwordID . "'>Lösenord:</label>
                 <input type='password' size='20' name='" . self::$passwordName . "' id='" . self::$passwordID . "' />
 
-                <label for='" . self::$autoLoginID . "'>Keep me logged in:</label>
+                <label for='" . self::$autoLoginID . "'>Håll mig inloggad:</label>
                 <input type='checkbox' name='" . self::$autoLoginName . "' id='" . self::$autoLoginID . "' $checked />
 
                 <input type='submit' value='Log in'>
