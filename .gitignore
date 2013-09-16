@@ -1,6 +1,10 @@
-# Temporary files
+# Composer
+/app/vendor/
+
+# Dev files/Scripts
 Guardfile
-/app/src/Phplogin/Views/DebugView.php
+deploy.sh
 phpinfo.php
 
-/app/vendor/
+# Temporary files
+/app/src/Phplogin/Views/DebugView.php
