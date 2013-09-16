@@ -1,9 +1,9 @@
 <?php
 
-namespace views;
+namespace Phplogin\Views;
 
-use \models\LoginModel;
-use \models\UserModel;
+use Phplogin\Models\LoginModel;
+use Phplogin\Models\UserModel;
 
 /**
  * Handles the form where a user can log in, the associated messages etc.
@@ -100,7 +100,7 @@ class LoginView
         $this->weWillRememberYou = true;
     }
 
-    public function showLoginSuccess(\models\UserModel $user)
+    public function showLoginSuccess(UserModel $user)
     {
         // FIXME: Is this really the best way?
         // This later gets checked in getHTML()
@@ -224,7 +224,8 @@ class LoginView
      * @param  string $input
      * @return string
      */
-    private function sanitize($input) {
+    private function sanitize($input)
+    {
         $input = trim($input);
         return filter_var($input, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
     }

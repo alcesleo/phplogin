@@ -1,9 +1,9 @@
 <?php
 
-namespace views;
+namespace Phplogin\Views;
 
-use \views\LoginView;
-use \views\DateTimeView;
+use Phplogin\Views\LoginView;
+use Phplogin\Views\DateTimeView;
 
 class AppView
 {

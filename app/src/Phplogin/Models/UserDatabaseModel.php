@@ -1,8 +1,8 @@
 <?php
 
-namespace models;
+namespace Phplogin\Models;
 
-use models\UserModel;
+use Phplogin\Models\UserModel;
 
 /**
  *

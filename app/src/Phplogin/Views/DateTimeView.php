@@ -1,8 +1,6 @@
 <?php
 
-namespace views;
-
-use views\HtmlProducerInterface;
+namespace Phplogin\Views;
 
 /**
  * Formats dates in different languages.

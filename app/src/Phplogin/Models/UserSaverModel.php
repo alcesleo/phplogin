@@ -1,9 +1,9 @@
 <?php
 
-namespace models;
+namespace Phplogin\Models;
 
-use \models\UserModel;
-use \models\UserDatabaseModel as UserDB;
+use Phplogin\Models\UserModel;
+use Phplogin\Models\UserDatabaseModel as UserDB;
 
 class UserSaverModel
 {

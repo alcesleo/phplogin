@@ -1,8 +1,8 @@
 <?php
 
-namespace models;
+namespace Phplogin\Models;
 
-use models\UserDatabaseModel as UserDB;
+use Phplogin\Models\UserDatabaseModel as UserDB;
 
 class UserModel
 {

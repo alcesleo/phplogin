@@ -1,15 +1,15 @@
 <?php
 
-namespace controllers;
+namespace Phplogin\Controllers;
 
-use models\LoginModel;
-use models\UserDatabaseModel as UserDAO;
-use models\UserSaverModel;
-use models\UserModel;
-use views\LoginView;
-use views\DateTimeView;
-use views\UserView;
-use views\AppView;
+use Phplogin\Models\LoginModel;
+use Phplogin\Models\UserDatabaseModel as UserDAO;
+use Phplogin\Models\UserSaverModel;
+use Phplogin\Models\UserModel;
+use Phplogin\Views\LoginView;
+use Phplogin\Views\DateTimeView;
+use Phplogin\Views\UserView;
+use Phplogin\Views\AppView;
 
 /**
  * # UC1 Autentisera användare

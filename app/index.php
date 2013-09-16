@@ -1,10 +1,8 @@
 <?php
+session_start();
+require_once('./vendor/autoload.php');
 
-require_once('/vendor/autoload.php')
-
-use controllers\LoginController;
-
-//$userOne = new \models\UserModel();
+use Phplogin\Controllers\LoginController;
 
 // Fire it up!
 $loginCtrl = new LoginController();
