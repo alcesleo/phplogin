@@ -1,3 +1,5 @@
 # Temporary files
 Guardfile
-src/Phplogin/Views/DebugView.php
+/app/src/Phplogin/Views/DebugView.php
+
+/app/vendor/
