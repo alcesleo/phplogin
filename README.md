@@ -27,3 +27,10 @@ Then you're good to go. If it's not installed globally:
 
 Both of these commands do the same thing - generate a `vendor`-directory with an autoloader
 and eventual dependencies.
+
+## Bugs / Todo
+
+- Login by cookies is not working
+- Use temporary passwords on the client
+- Register users
+- Protect against evil tutors
