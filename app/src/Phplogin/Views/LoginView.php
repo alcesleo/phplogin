@@ -56,6 +56,7 @@ class LoginView
         if (! isset($_COOKIE[self::$userNameName]) || ! isset($_COOKIE[self::$passwordName])) {
             throw new \Exception("Cookies not set");
         }
+        // FIXME: Line too long
         return UserModel::authorizeUser($_COOKIE[self::$userNameName], $_COOKIE[self::$passwordName], UserModel::AUTHORIZED_BY_COOKIES);
     }
 

@@ -11,6 +11,7 @@ use Phplogin\Views\DateTimeView;
 use Phplogin\Views\UserView;
 use Phplogin\Views\AppView;
 
+// FIXME: Line too long
 /**
  * # UC1 Autentisera användare
  *
@@ -56,6 +57,8 @@ class LoginController
     }
 
     // FIXME: This code is shit
+    // FIXME: Function too long
+    // FIXME: This function does more than it says
     public function logIn()
     {
         $loginHTML;
@@ -66,7 +69,7 @@ class LoginController
         try {
             $user = $this->userSaverModel->load();
 
-            // FIXME: Copy pasta
+            // FIXME: Duplicated code
             $this->loginView->showLoginSuccess($user);
             $loginHTML = $this->loginView->getWelcomeHTML();
         } catch (\Exception $ex) {
@@ -78,7 +81,7 @@ class LoginController
             try {
                 $user = $this->loginView->getUserFromCookies();
 
-                // FIXME: Copy pasta
+                // FIXME: Duplicated code
                 $this->loginView->showLoginSuccess($user);
                 $loginHTML = $this->loginView->getWelcomeHTML();
 
@@ -111,13 +114,14 @@ class LoginController
             if ($this->appView->userWantsToLogIn()) {
 
                 // Check session credentials
-                // TODO Check this on other screens as well?
+                // TODO: Check this on other screens as well?
 
                 // Validate form
                 if ($this->loginView->validateFormInput()) {
 
                     // Authorize user
                     try {
+                        // FIXME: Line too long
                         // This can fail
                         $user = UserModel::authorizeUser($this->loginView->getPostUserName(), $this->loginView->getPostPassword(), UserModel::AUTHORIZED_BY_USER);
 
@@ -139,7 +143,7 @@ class LoginController
                         $loginHTML = $this->loginView->getFormHTML();
                     }
 
-                // DRY as fuck.
+                // FIXME: Duplicated code
                 } else {
                     $loginHTML = $this->loginView->getFormHTML();
                 }

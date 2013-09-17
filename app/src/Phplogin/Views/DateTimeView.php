@@ -7,7 +7,6 @@ namespace Phplogin\Views;
  */
 class DateTimeView
 {
-
     private $locale;
     private $format;
 
@@ -21,6 +20,7 @@ class DateTimeView
         $this->format = $format;
 
         // FIXME: Is this really the way to do this?
+        // TODO: Could this be set to LC_TIME?
         setlocale(LC_ALL, $this->locale);
     }
 

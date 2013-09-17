@@ -22,7 +22,8 @@ class UserSaverModel
     public function load()
     {
         if ($this->validate()) {
-            // This is the worst line of code in human history
+            // FIXME: Line too long
+            // FIXME: This is the worst line of code in human history
             return new UserModel($_SESSION['LoggedInAs'], 'LOLThisIsNotEvenTheCorrectPassword', UserModel::AUTHORIZED_BY_SESSION);
         }
         throw new \Exception('Not logged in');
@@ -30,18 +31,19 @@ class UserSaverModel
 
     public function save(UserModel $userModel)
     {
-        // FIXME: String dependancies suck
+        // FIXME: String dependencies
 
         // Prevent session hijacking
         $_SESSION['UserAgent'] = $_SERVER['HTTP_USER_AGENT'];
         $_SESSION['IPAddr'] = $_SERVER['REMOTE_ADDR'];
 
-        // FIXME: Very secure.
+        // FIXME: Not very secure.
         $_SESSION['LoggedInAs'] = $userModel->getUsername();
     }
 
     public function remove()
     {
+        // FIXME: String dependencies
         unset($_SESSION['UserAgent']);
         unset($_SESSION['IPAddr']);
         unset($_SESSION['LoggedInAs']);
