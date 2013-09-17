@@ -4,8 +4,8 @@
 
 - Standards are [PHP-FIG](http://http://www.php-fig.org/).
 - [Composer](http://http://getcomposer.org/) does the autoloading.
-- MVC-classes have suffixes (`Model`|`View`|`Controller`) even though they are namespaced, because
-    I want to know what the tabs in my editor goes to
+-   Classes have suffixes (`Model`|`View`|`Controller`) even though they are namespaced.
+    I think it's clearer when you often have both View and Model-classes with the same name.
 
 ## How to get it running
 
@@ -28,9 +28,10 @@ Then you're good to go. If it's not installed globally:
 Both of these commands do the same thing - generate a `vendor`-directory with an autoloader
 and eventual dependencies.
 
-## Bugs / Todo
+## Deployment
 
-- Login by cookies is not working
-- Use temporary passwords on the client
-- Register users
-- Protect against evil tutors
+Now I'm using this [script](https://gist.github.com/6581757) to deploy via SSH.
+
+I've also set this in `.htaccess` on the host.
+
+    AddDefaultCharset utf-8
