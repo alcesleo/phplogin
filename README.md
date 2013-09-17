@@ -13,15 +13,16 @@ Since I'm using Composers autoloading, you need to run a few commands before thi
 
 If you have Composer installed globally, run:
 
+    cd app/
     composer install
 
 Then you're good to go. If it's not installed globally:
 
     # Install composer locally
-    cd /path/to/this/project/root
+    cd /path/to/this/project/root/app
     curl -s http://getcomposer.org/installer | php
 
-    # Run the local install
+    # Run the local install from within the app/-directory
     php composer.phar install
 
 Both of these commands do the same thing - generate a `vendor`-directory with an autoloader
