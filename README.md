@@ -20,7 +20,7 @@ If you have Composer installed globally, run:
 Then you're good to go. If it's not installed globally:
 
     # Install composer locally
-    cd /path/to/this/project/root/app
+    cd app/
     curl -s http://getcomposer.org/installer | php
 
     # Run the local install from within the app/-directory
