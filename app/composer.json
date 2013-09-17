@@ -1,14 +1,8 @@
 {
     "name": "alcesleo/phplogin",
     "description": "A simple login-application",
-    "config": {
-        "vendor-dir": "vendor"
-    },
     "require-dev": {
         "phpunit/phpunit": "*"
-    },
-    "require": {
-
     },
     "autoload": {
         "psr-0": {"Phplogin\\": "src/"}
