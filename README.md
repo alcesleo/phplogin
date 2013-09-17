@@ -5,7 +5,8 @@
 - Standards are [PHP-FIG](http://http://www.php-fig.org/).
 - [Composer](http://http://getcomposer.org/) does the autoloading.
 -   Classes have suffixes (`Model`|`View`|`Controller`) even though they are namespaced.
-    I think it's clearer when you often have both View and Model-classes with the same name.
+    It is a little redundant, but I think it's worth it to know what role a file has without
+    looking at the folder/namespace. This works well with tabs in the editor.
 
 ## How to get it running
 
