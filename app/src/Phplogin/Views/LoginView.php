@@ -3,16 +3,20 @@
 namespace Phplogin\Views;
 
 use Phplogin\Models\LoginModel;
-use Phplogin\Models\UserModel;
+use Phplogin\Models\UserCredentialsModel;
+use Exception;
 
 /**
  * Handles the form where a user can log in, the associated messages etc.
  */
 class LoginView
 {
+    /**
+     * @var LoginModel
+     */
     private $loginModel;
 
-    // TODO: Should these be in AppView...?
+    // TODO: Should these be in AppView?
     private static $login = 'login';
     private static $logout = 'logout';
 
@@ -23,9 +27,6 @@ class LoginView
     private static $passwordID = 'PasswordID';
     private static $userNameID = 'UserNameID';
     private static $autoLoginID = 'AutologinID';
-
-    // Session/Cookie-names
-    private static $sessionCredentials = 'PersistLogin';
 
     // Notifications
     private $notificationMessage;
@@ -39,6 +40,12 @@ class LoginView
     public function __construct(LoginModel $loginModel)
     {
         $this->loginModel = $loginModel;
+    }
+
+    public function isCookieCredentialsSet()
+    {
+        // return true if both cookies are set
+        return (isset($_COOKIE[self::$passwordName]) && isset($_COOKIE[self::$passwordName]));
     }
 
     /**
@@ -57,7 +64,7 @@ class LoginView
             throw new \Exception("Cookies not set");
         }
         // FIXME: Line too long
-        return UserModel::authorizeUser($_COOKIE[self::$userNameName], $_COOKIE[self::$passwordName], UserModel::AUTHORIZED_BY_COOKIES);
+        return new UserModel($_COOKIE[self::$userNameName]);
     }
 
     public function unsetUserCookies()
@@ -101,13 +108,14 @@ class LoginView
         $this->weWillRememberYou = true;
     }
 
-    public function showLoginSuccess(UserModel $user)
+    public function showLoginSuccess()
     {
         // FIXME: Is this really the best way?
         // This later gets checked in getHTML()
         $this->user = $user;
     }
 
+    // **** TODO: Remove these functions
     /**
      * @return string posted username, or empty string
      */
@@ -127,52 +135,81 @@ class LoginView
     /**
      * @return boolean posted value of checkbox
      */
-    public function getPostStayLoggedIn()
+    public function userWantsToStayLoggedIn()
     {
         return isset($_POST[self::$autoLoginName]) ? true : false;
     }
+    // **** END
 
     private function showFormError($message)
     {
         $this->notificationMessage = $message;
     }
 
-    public function getWelcomeHTML()
+    /**
+     * Get credentials from form input fields
+     * @return UserCredentialsModel
+     * @throws Exception If malformed input
+     */
+    public function getCredentialsFromForm()
     {
-        $authBy = '';
+        // Get input fields
+        // NOTE: Dependancy on form output
+        $username = isset($_POST[self::$userNameName]) ? trim($_POST[self::$userNameName]) : "";
+        $password = isset($_POST[self::$passwordName]) ? trim($_POST[self::$passwordName]) : "";
 
-        switch ($this->user->getAutLevel()) {
-            case UserModel:: AUTHORIZED_BY_SESSION:
-                $authBy = "";
-                break;
-            case UserModel::AUTHORIZED_BY_USER:
-                if ($this->weWillRememberYou) {
-                    $authBy = '<p>Inloggning lyckades och vi kommer ihåg dig till nästa gång.</p>';
-                } else {
-                    $authBy = "<p>Inloggning lyckades.</p>";
-                }
-                break;
-            case UserModel::AUTHORIZED_BY_COOKIES:
-                $authBy = "<p>Inloggning lyckades med hjälp av cookies.</p>";
-                break;
+        // Check for empty fields
+        // TODO: Don't depend on exception messages
+        if (strlen($username) == 0) {
+            throw new Exception('Användarnamn saknas');
+        }
+        if (strlen($password) == 0) {
+            throw new Exception('Lösenord saknas');
         }
 
-        return "
-        <h2>" . $this->user->getUsername() . " är inloggad.</h2>
-        $authBy
-        <p><a href='?" . self::$logout . "'>Logga ut</a></p>
-        ";
-
+        return new UserCredentialsModel($username, $password);
     }
 
-    public function getFormHTML()
+
+    /**
+     * Success-page displaying the currently logged in
+     * user, and a logout-button.
+     * @return string HTML
+     */
+    public function getLoginSuccessHTML()
     {
+        // TODO: Review this function, testing code
+
+        // Make sure this function isn't called without being logged in
+        assert($this->loginModel->isLoggedIn());
+
+        // TODO: Find out login-method?
+        $authBy = '';
+
+        //return "Logged in";
+        return "
+            <h2>" . $this->loginModel->getLoggedInUser()->getUsername() . " är inloggad.</h2>
+            $authBy
+            <p><a href='?" . self::$logout . "'>Logga ut</a></p>
+        ";
+    }
+
+    /**
+     * @param  string $message Notification/error-message shown in the form
+     * @return string          HTML
+     */
+    public function getFormHTML($message = '')
+    {
+        // TODO: Clean up this function
+        // TODO: Get action from app-view...?
         // Declare strings to be interpolated
         $legend = "Logga in - Skriv in användarnamn och lösenord";
-        $error = $this->notificationMessage ? "<p>$this->notificationMessage</p>" : '';
+
+        // Surround the message in p-tags if not empty
+        $message = $message ? "<p>$message</p>" : '';
 
         // Persist value from checkbox
-        $checked = $this->getPostStayLoggedIn() ? 'checked=\"checked\"' : '';
+        $checked = $this->userWantsToStayLoggedIn() ? 'checked=\"checked\"' : '';
 
         // Construct the form
         return "
@@ -180,12 +217,11 @@ class LoginView
 
         <form action='?" . self::$login . "' method='post'>
             <fieldset>
-                <legend>$legend</legend>
-
-                $error
-
+                <legend>Logga in - Skriv in användarnamn och lösenord</legend>
+                $message
                 <label for='" . self::$userNameID . "'>Användarnamn:</label>
-                <input type='text' size='20' name='" . self::$userNameName . "' id='" . self::$userNameID . "' value='" . $this->getPostUserName() . "' />
+                <input type='text' size='20' name='" . self::$userNameName . "'
+                id='" . self::$userNameID . "' value='" . $this->getPostUserName() . "' />
 
                 <label for='" . self::$passwordID . "'>Lösenord:</label>
                 <input type='password' size='20' name='" . self::$passwordName . "' id='" . self::$passwordID . "' />
