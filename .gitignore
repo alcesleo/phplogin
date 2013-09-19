@@ -1,5 +1,9 @@
+# Database
+app/db/
+
 # Composer
 /app/vendor/
+composer.lock
 
 # Dev files/Scripts
 Guardfile
