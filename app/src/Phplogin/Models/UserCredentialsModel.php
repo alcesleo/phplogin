@@ -1,6 +1,6 @@
 <?php
 
-namespace Models;
+namespace Phplogin\Models;
 
 /**
  * Contains rules of how usernames and passwords are formed
