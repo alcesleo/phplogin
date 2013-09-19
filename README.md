@@ -36,3 +36,13 @@ Now I'm using this [script](https://gist.github.com/6581757) to deploy via SSH.
 I've also set this in `.htaccess` on the host.
 
     AddDefaultCharset utf-8
+
+## Testing
+
+To run the tests:
+
+    # Make sure phpunit is installed
+    composer install --dev
+
+    # run the tests, the phpunit.xml takes care of the settings
+    phpunit
