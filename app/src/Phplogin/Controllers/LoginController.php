@@ -3,158 +3,139 @@
 namespace Phplogin\Controllers;
 
 use Phplogin\Models\LoginModel;
-use Phplogin\Models\UserDatabaseModel as UserDAO;
-use Phplogin\Models\UserSaverModel;
 use Phplogin\Models\UserModel;
+use Phplogin\Models\UserListModel;
 use Phplogin\Views\LoginView;
 use Phplogin\Views\DateTimeView;
-use Phplogin\Views\UserView;
 use Phplogin\Views\AppView;
+use Exception;
 
-// FIXME: Line too long
-/**
- * # UC1 Autentisera användare
- *
- * ## Huvudscenario
- *
- * 1. Startar när en användare vill autentisera sig.
- * 2. Systemet ber om användarnamn och lösenord och valet att spara uppgifter
- * 3. Användaren anger användarnamn och lösenord
- * 4. Systemet autentierar användaren och presenterar att autentiseringen lyckades
- *
- * ## Alternativa scenarion
- *
- * 3a. Användaren anger att spara uppgifter
- *     1. Systemet autentisierar användaren och presenterar att autentiseringen lyckades och att uppgifterna har sparats.
- * 4a. Användaren kunde inte autentisieras
- *     1. Systemet presenterar felmeddelande
- *     2. Gå till steg 2 i huvudscenariot.
- *
- */
 class LoginController
 {
-
+    /**
+     * @var LoginModel
+     */
     private $loginModel;
-    private $userSaverModel;
 
-    // Views
+    /**
+     * @var LoginView
+     */
     private $loginView;
-    private $dateTimeView;
+
+    /**
+     * @var AppView
+     */
     private $appView;
 
-    // TODO: Send in userdatabase
     public function __construct()
     {
-        $this->loginModel = new LoginModel();
-        $this->userSaverModel = new UserSaverModel();
+        $db = new UserListModel('db/users.sqlite');
+        $this->loginModel = new LoginModel($db);
 
-        // Create instances
         $this->loginView = new LoginView($this->loginModel);
-        $this->dateTimeView = new DateTimeView('sv_SE.UTF-8', '%A, den %e %B år %Y. Klockan är [%H:%M:%S].');
-
-        // TODO: Should this be passed in as a param?
         $this->appView = new AppView();
     }
 
-    // FIXME: This code is shit
-    // FIXME: Function too long
-    // FIXME: This function does more than it says
-    public function logIn()
+    /**
+     * Prints out the entire html-page
+     */
+    public function printLoginPage()
     {
-        $loginHTML;
-        $dateHTML;
-        $user;
+        $loginHTML = $this->handleState();
+        print $this->appView->getHTML($loginHTML);
+    }
 
-        // Log in with session
-        try {
-            $user = $this->userSaverModel->load();
-
-            // FIXME: Duplicated code
-            $this->loginView->showLoginSuccess($user);
-            $loginHTML = $this->loginView->getWelcomeHTML();
-        } catch (\Exception $ex) {
-            // Don't give a shit
-        }
-
-        // Log in with cookies
-        if (! isset($user)) {
-            try {
-                $user = $this->loginView->getUserFromCookies();
-
-                // FIXME: Duplicated code
-                $this->loginView->showLoginSuccess($user);
-                $loginHTML = $this->loginView->getWelcomeHTML();
-
-                // Save the user session
-                $this->userSaverModel->save($user);
-            } catch (\Exception $ex) {
-                // Don't give a shit
-            }
-        }
-        // If user has not been set from cookies
-
+    /**
+     * Manages which function that should be called depending
+     * on what session, cookies, form fields are set.
+     * @return string HTML
+     */
+    private function handleState()
+    {
         // Log out
-        if (isset($user)) {
-
-            if ($this->appView->userWantsToLogOut()) {
-                // Log out
-                $this->userSaverModel->remove();
-
-                // Unset session and cookie
-                $this->loginView->unsetUserCookies();
-                $this->loginView->showLogoutSuccess();
-
-                $loginHTML = $this->loginView->getFormHTML();
-            }
-
-        // Log in manually
-        } else {
-
-            // When ?login is hit
-            if ($this->appView->userWantsToLogIn()) {
-
-                // Check session credentials
-                // TODO: Check this on other screens as well?
-
-                // Validate form
-                if ($this->loginView->validateFormInput()) {
-
-                    // Authorize user
-                    try {
-                        // FIXME: Line too long
-                        // This can fail
-                        $user = UserModel::authorizeUser($this->loginView->getPostUserName(), $this->loginView->getPostPassword(), UserModel::AUTHORIZED_BY_USER);
-
-                        // Stay logged in
-                        if ($this->loginView->getPostStayLoggedIn()) {
-                            $this->loginView->setUserCookies($user);
-                            $this->loginView->showWeWillRememberYou();
-                        }
-
-                        $this->loginView->showLoginSuccess($user);
-                        $loginHTML = $this->loginView->getWelcomeHTML();
-
-
-                        // Save the user session
-                        $this->userSaverModel->save($user);
-
-                    } catch (\Exception $ex) {
-                        $this->loginView->showLoginFailed();
-                        $loginHTML = $this->loginView->getFormHTML();
-                    }
-
-                // FIXME: Duplicated code
-                } else {
-                    $loginHTML = $this->loginView->getFormHTML();
-                }
-            } else {
-                $loginHTML = $this->loginView->getFormHTML();
-            }
-
+        if ($this->appView->userWantsToLogOut()) {
+            return $this->logout();
         }
-        // Print out the page
-        $dateHTML = $this->dateTimeView->getHTML();
-        print $this->appView->getHTML($loginHTML, $dateHTML);
 
+        // TODO: Register user here?
+
+        // Session login
+        if ($this->loginModel->isLoggedIn()) {
+            return $this->loginView->getLoginSuccessHTML();
+        }
+
+        // Cookie login
+        if ($this->loginView->isCookieCredentialsSet()) {
+            return $this->loginWithCookies();
+        }
+
+        // Form login
+        if ($this->appView->userWantsToLogIn()) {
+            return $this->loginWithForm();
+        }
+
+        // Plain form
+        return $this->loginView->getFormHTML();
+    }
+
+    /**
+     * Handles the form data and shows error messeges,
+     * or redirects to the success-screen.
+     * @return string HTML
+     */
+    private function loginWithForm()
+    {
+        // Authenticate
+        try {
+            // Get usercredentials from form view
+            $credentials = $this->loginView->getCredentialsFromForm();
+
+            // Authenticate them
+            // TODO: Put this in its own try, if it throws - loginView->showLoginFailedCredentials()
+            $user = $this->loginModel->logIn($credentials);
+        } catch (Exception $e) {
+            // TODO: Use custom exceptions instead of passing through errors from the model
+            return $this->loginView->getFormHTML($e->getMessage());
+        }
+
+        // Set cookies
+        /*
+        if ($this->loginView->userWantsToStayLoggedIn()) {
+            $this->loginModel->getUsername
+            $this->loginView->setCookies($userName, $temporaryPassword);
+        }
+        */
+
+        return $this->loginView->getLoginSuccessHTML();
+    }
+
+    private function loginWithCookies()
+    {
+        // TODO: Testing code
+
+        // Get information from cookies
+        //$user = $this->loginView->getUsernameFromCookie()
+        //$tempPassword = $this->loginView->getTemporaryPasswordFromCookie()
+        //
+        // Try to log in
+        // $this->loginModel->logIn()
+        // Cookie success
+            // loginView->showLoggedInByCookies()
+        // Cookie error
+            // loginView->showLoginError(cookies?)
+    }
+
+    private function logout()
+    {
+        // TODO: Implement
+        // Delete session variables
+        $this->loginModel->logOut();
+
+        // Delete cookies / temporary password
+        // $this->loginView->unsetCookies();
+
+        // Show logout success-page
+        // TODO: The string belongs in the loginView
+        return $this->loginView->getFormHTML('Du har nu loggat ut!');
     }
 }
