@@ -13,16 +13,16 @@ class UserModel
     /**
      * @var string
      */
-    private $hash;
+    private $passwordHash;
 
     /**
      * @param string $username
-     * @param string $hash     encrypted password
+     * @param string $passwordHash Optional passwordHash
      */
-    public function __construct($username, $hash)
+    public function __construct($username, $passwordHash = null)
     {
         $this->username = $username;
-        $this->hash = $hash;
+        $this->passwordHash = $passwordHash;
     }
 
     public function getUsername()
@@ -32,6 +32,6 @@ class UserModel
 
     public function getHash()
     {
-        return $this->hash;
+        return $this->passwordHash;
     }
 }
