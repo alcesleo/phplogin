@@ -30,7 +30,7 @@ class DateTimeView
      */
     public function getHTML()
     {
-        $timestamp = strftime($this->format);
+        $timestamp = ucfirst(strftime($this->format));
         return "<p class='timestamp'>$timestamp</p>";
     }
 }
