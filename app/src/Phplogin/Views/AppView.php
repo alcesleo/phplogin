@@ -7,10 +7,6 @@ use Phplogin\Views\DateTimeView;
 
 class AppView
 {
-    // TODO: How do getFormHTML know about these?
-    private static $loginPage = 'login';
-    private static $logoutPage = 'logout';
-
     /**
      * @var DateTimeView
      */
@@ -25,6 +21,7 @@ class AppView
      * Generate the complete html-page
      * @param string $title title of the page
      * @param string $body HTML
+     * @return string HTML
      */
     public function getHTML($body, $title = 'PHPLogin')
     {
@@ -46,20 +43,11 @@ class AppView
     }
 
     /**
-     * If loginpage is active
-     * @return bool
+     * Redirects to a page
+     * @param string $path Path to redirect to, home if omitted
      */
-    public function userWantsToLogIn()
+    public function redirect($path = '/')
     {
-        return isset($_GET[self::$loginPage]);
-    }
-
-    /**
-     * If logoutpage is active
-     * @return bool
-     */
-    public function userWantsToLogOut()
-    {
-        return isset($_GET[self::$logoutPage]);
+        header("Location: $path");
     }
 }
