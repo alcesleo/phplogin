@@ -8,6 +8,7 @@ use Phplogin\Models\UserListModel;
 use Phplogin\Views\LoginView;
 use Phplogin\Views\DateTimeView;
 use Phplogin\Views\AppView;
+use Phplogin\Exceptions\NotAuthorizedException;
 use Exception;
 
 class LoginController
@@ -29,6 +30,9 @@ class LoginController
 
     public function __construct()
     {
+        // TODO: Take instances as params?
+
+        // Open the db and give it to the LoginModel
         $db = new UserListModel('db/users.sqlite');
         $this->loginModel = new LoginModel($db);
 
@@ -53,11 +57,11 @@ class LoginController
     private function handleState()
     {
         // Log out
-        if ($this->appView->userWantsToLogOut()) {
-            return $this->logout();
+        if ($this->loginView->userWantsToLogOut()) {
+            return $this->logOut();
         }
 
-        // TODO: Register user here?
+        // TODO: Register user
 
         // Session login
         if ($this->loginModel->isLoggedIn()) {
@@ -65,12 +69,12 @@ class LoginController
         }
 
         // Cookie login
-        if ($this->loginView->isCookieCredentialsSet()) {
+        if ($this->loginView->userHasSavedCredentials()) {
             return $this->loginWithCookies();
         }
 
         // Form login
-        if ($this->appView->userWantsToLogIn()) {
+        if ($this->loginView->userWantsToLogIn()) {
             return $this->loginWithForm();
         }
 
@@ -85,17 +89,20 @@ class LoginController
      */
     private function loginWithForm()
     {
-        // Authenticate
+        // Get usercredentials from form view
         try {
-            // Get usercredentials from form view
             $credentials = $this->loginView->getCredentialsFromForm();
-
-            // Authenticate them
-            // TODO: Put this in its own try, if it throws - loginView->showLoginFailedCredentials()
-            $user = $this->loginModel->logIn($credentials);
         } catch (Exception $e) {
             // TODO: Use custom exceptions instead of passing through errors from the model
             return $this->loginView->getFormHTML($e->getMessage());
+        }
+
+        // Authenticate
+        try {
+            $user = $this->loginModel->logInWithCredentials($credentials);
+        } catch (NotAuthorizedException $e) {
+            // TODO: String belongs in loginview
+            return $this->loginView->getFormHTML(LoginView::ERR_AUTHENTICATION_FAILED);
         }
 
         // Set cookies
@@ -125,17 +132,22 @@ class LoginController
             // loginView->showLoginError(cookies?)
     }
 
-    private function logout()
+    /**
+     * Log out the current user
+     * @return string HTML logout success
+     */
+    private function logOut()
     {
-        // TODO: Implement
-        // Delete session variables
-        $this->loginModel->logOut();
-
-        // Delete cookies / temporary password
+        // Only show logged out messege if not already logged out
+        if ($this->loginModel->logOut()) {
+            // Show logout success-page
+            // TODO: The string belongs in the loginView
+            return $this->loginView->getFormHTML('Du har nu loggat ut!');
+        }
+        // TODO: Delete cookies / temporary password
         // $this->loginView->unsetCookies();
 
-        // Show logout success-page
-        // TODO: The string belongs in the loginView
-        return $this->loginView->getFormHTML('Du har nu loggat ut!');
+        // TODO: Redirect to index instead?
+        $this->appView->redirect();
     }
 }
