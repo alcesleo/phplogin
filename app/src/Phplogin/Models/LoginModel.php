@@ -5,52 +5,69 @@ namespace Phplogin\Models;
 use Phplogin\Models\UserModel;
 use Phplogin\Models\UserListModel;
 use Phplogin\Models\UserCredentialsModel;
-use Exception;
+use Phplogin\Exceptions\NotAuthorizedException;
 use Phplogin\Exceptions\NotFoundException;
+use Exception;
 
 class LoginModel
 {
-    // TODO: Order functions
-
+    /**
+     * User-database
+     * @var UserListModel
+     */
     private $db;
 
+    /**
+     * Key to logged in user in session
+     * @var string
+     */
     private static $sessionLoggedIn = 'LoginModel::LoggedInUser';
 
+    /**
+     * @param UserListModel $database Database to match the login-attempts to
+     */
     public function __construct(UserListModel $database)
     {
         $this->db = $database;
     }
 
     /**
-     * Log in a user
+     * Log in a user with provided credentials
      * @param  UserCredentialsModel $credentials
-     * @return UserModel // REALLY???
-     * @throws Exception If not authorized
-     * @throws NotFoundException If user doesn't exist
+     * @return UserModel
+     * @throws NotAuthorizedException If not authorized, or user doesn't exist
      */
-    public function logIn(UserCredentialsModel $credentials)
+    public function logInWithCredentials(UserCredentialsModel $credentials)
     {
-        // TODO: Authorize credentials
-
         // Get user from database
-        // NOTE: This can throw NotFoundException
-        $user = $this->db->getUserByName($credentials->getUsername());
-
-        // Authorize
-        if (! $this->authorize($credentials, $user)) {
-            throw new Exception('Not authorized');
+        try {
+            $user = $this->db->getUserByName($credentials->getUsername());
+        } catch (NotFoundException $e) {
+            // Do not reveal if the user exists
+            throw new NotAuthorizedException();
         }
 
+        // Authorize
+        if (! $this->authorizeCredentials($user, $credentials)) {
+            throw new NotAuthorizedException();
+        }
+
+        // Save in session
         $this->persistLogin($user);
 
         return $user;
     }
 
+    /**
+     * Returns the logged in user
+     * @return UserModel
+     */
     public function getLoggedInUser()
     {
         if (! $this->isLoggedIn()) {
             throw new Exception('No user logged in');
         }
+        // TODO: Make sure this is a usermodel
         return unserialize($_SESSION[self::$sessionLoggedIn]);
     }
 
@@ -64,17 +81,14 @@ class LoginModel
         $_SESSION[self::$sessionLoggedIn] = serialize($user);
     }
 
-    private function authorize(UserCredentialsModel $credentials, UserModel $user)
+
+    // TODO: Why is this here?
+    private function authorizeCredentials(UserModel $user, UserCredentialsModel $credentials)
     {
         if ($credentials->getUsername() != $user->getUsername()) {
             return false;
         }
 
-        // FIXME: new Password
-        /*
-        $dbPass = $user->getPassword();
-        if ($dbPass->matchCredentials($credentials))
-        */
         // FIXME: Don't encrypt here
         if (sha1($credentials->getPassword()) != $user->getHash()) {
             return false;
@@ -83,10 +97,19 @@ class LoginModel
         return true;
     }
 
+    /**
+     * Logs the user out
+     * @return bool true if successfully logged out
+     *              false if not logged in to start with
+     */
     public function logOut()
     {
-        // TODO: Delete session variables
-        unset($_SESSION[self::$sessionLoggedIn]);
+        if ($this->isLoggedIn()) {
+            // Delete session variables
+            unset($_SESSION[self::$sessionLoggedIn]);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -97,11 +120,5 @@ class LoginModel
     {
         // TODO: May need a closer look...
         return isset($_SESSION[self::$sessionLoggedIn]);
-    }
-
-    // TODO: Preliminary, return session|cookie|input?
-    public function loggedInBy()
-    {
-
     }
 }
