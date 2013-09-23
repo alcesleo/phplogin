@@ -25,13 +25,20 @@ class UserModel
         $this->passwordHash = $passwordHash;
     }
 
+    /**
+     * @return string
+     */
     public function getUsername()
     {
         return $this->username;
     }
 
+    /**
+     * @return string 40 char encrypted password
+     */
     public function getHash()
     {
+        // TODO: What if password is undefined?
         return $this->passwordHash;
     }
 }
