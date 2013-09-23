@@ -116,22 +116,7 @@ class LoginController
         return $this->loginView->getLoginSuccessHTML();
     }
 
-    private function loginWithCookies()
-    {
-        // TODO: Testing code
-
-        // Get information from cookies
-        //$user = $this->loginView->getUsernameFromCookie()
-        //$tempPassword = $this->loginView->getTemporaryPasswordFromCookie()
-        //
-        // Try to log in
-        // $this->loginModel->logIn()
-        // Cookie success
-            // loginView->showLoggedInByCookies()
-        // Cookie error
-            // loginView->showLoginError(cookies?)
-    }
-
+    // TODO: Should this be its own controller?
     /**
      * Log out the current user
      * @return string HTML logout success
@@ -141,13 +126,10 @@ class LoginController
         // Only show logged out messege if not already logged out
         if ($this->loginModel->logOut()) {
             // Show logout success-page
-            // TODO: The string belongs in the loginView
-            return $this->loginView->getFormHTML('Du har nu loggat ut!');
+            return $this->loginView->getFormHTML(LoginView::LOGOUT_SUCCESS);
         }
         // TODO: Delete cookies / temporary password
-        // $this->loginView->unsetCookies();
 
-        // TODO: Redirect to index instead?
         $this->appView->redirect();
     }
 }
