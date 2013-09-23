@@ -14,33 +14,44 @@ class Router
     private static $ctrlNamespace = 'Phplogin\\Controllers\\';
 
     /**
-     * Use the URL to dispatch the correct controller and action
+     * When page is not found, redirect to login-page
+     * @var string
+     */
+    private static $fourOhFour = '/login/printLoginPage';
+
+    /**
+     * Create appropriate controller and call requested action.
+     *
+     * Uses the URL to instantiate the correct controller and  call
+     * an action on it. Redirects to 404-page if a controller,
+     * or if the action within that controller, is not found.
      */
     public static function dispatch()
     {
-        // If base request
+        // Base URL.
+        // This is checked here because I might want
+        // a home-page other than the login-page later
         if ($_SERVER['REQUEST_URI'] == '/') {
-            // TODO: Redirect
-            return;
+            self::redirect(self::$fourOhFour);
         }
 
         $request = self::getRequestPathArray();
 
-        // Get controller
+        // Determine controller
+        // www.example.com/page/action => 'Phplogin\Controllers\PageController'
         $ctrlName = self::$ctrlNamespace . ucfirst($request[0]) . 'Controller';
 
+        // No controller with that name
         if (! class_exists($ctrlName)) {
-            // TODO: Redirect to not found
-            assert(false);
+            self::redirect(self::$fourOhFour);
         }
 
-        // Get action
-        // FIXME: This should be more robust
+        // Determine action
         $actionName = $request[1];
 
+        // No action with that name in specified controller
         if (! method_exists($ctrlName, $actionName)) {
-            // TODO: Redirect to not found
-            assert(false);
+            self::redirect(self::$fourOhFour);
         }
 
         // Call the action
