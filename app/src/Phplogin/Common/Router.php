@@ -7,7 +7,10 @@ namespace Phplogin\Common;
  */
 class Router
 {
-
+    /**
+     * Namespace of controllers to handle requests
+     * @var string
+     */
     private static $ctrlNamespace = 'Phplogin\\Controllers\\';
 
     /**
