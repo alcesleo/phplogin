@@ -16,62 +16,83 @@ class LoginView
      */
     private $loginModel;
 
-    // TODO: Should these be in AppView?
-    private static $login = 'login';
-    private static $logout = 'logout';
+    // Get-pages
+    private static $loginPage = 'login';
+    private static $logoutPage = 'logout';
 
     // Variable-names for the input form.
-    private static $passwordName = 'LoginView::Password';
-    private static $userNameName = 'LoginView::UserName'; // FIXME: This is the ugliest variable name in history
-    private static $autoLoginName = 'LoginView::Checked';
+    private static $passwordKey = 'LoginView::Password';
+    private static $usernameKey = 'LoginView::UserName';
+    private static $stayLoggedInKey = 'LoginView::Checked';
     private static $passwordID = 'PasswordID';
     private static $userNameID = 'UserNameID';
-    private static $autoLoginID = 'AutologinID';
+    private static $stayLoggedInID = 'AutoLoginID';
 
     // Notifications
-    private $notificationMessage;
-    private static $errorUsernameNotSet = 'Användarnamn saknas';
-    private static $errorPasswordNotSet = 'Lösenord saknas';
-    private static $errorWrongCredentials = 'Felaktigt användarnamn och/eller lösenord.';
-    private static $loggedOutSuccess = "Du har nu loggat ut";
+    const ERR_USERNAME_NOT_SET = 'Användarnamn saknas';
+    const ERR_PASSWORD_NOT_SET = 'Lösenord saknas';
+    const ERR_AUTHENTICATION_FAILED = 'Felaktigt användarnamn och/eller lösenord.';
+    const LOGOUT_SUCCESS = "Du har nu loggat ut";
 
-    private $weWillRememberYou = false;
-
+    /**
+     * @param LoginModel $loginModel
+     */
     public function __construct(LoginModel $loginModel)
     {
         $this->loginModel = $loginModel;
     }
 
-    public function isCookieCredentialsSet()
+    /****************************************
+    Cookie credentials
+    *****************************************/
+
+    /**
+     * @return bool
+     */
+    public function userHasSavedCredentials()
     {
         // return true if both cookies are set
-        return (isset($_COOKIE[self::$passwordName]) && isset($_COOKIE[self::$passwordName]));
+        return (isset($_COOKIE[self::$passwordKey]) && isset($_COOKIE[self::$passwordKey]));
     }
 
     /**
      * Saves a users credentials as coookies
      * @param UserModel $user The user to save
      */
-    public function setUserCookies(UserModel $user)
+    public function saveUserCredentials(UserModel $user)
     {
-        setcookie(self::$userNameName, $user->getUsername(), time() + 60);
-        setcookie(self::$passwordName, $user->getHash(), time() + 60);
+        // TODO: Variable for time
+        // TODO: Use temporary passwords
+        setcookie(self::$usernameKey, $user->getUsername(), time() + 60);
+        setcookie(self::$passwordKey, $user->getHash(), time() + 60);
     }
 
-    public function getUserFromCookies()
+    /**
+     * Return an object containing the credentials saved in cookies
+     * @return UserModel
+     * @throws Exception If no credentials are saved
+     */
+    public function getSavedCredentials()
     {
-        if (! isset($_COOKIE[self::$userNameName]) || ! isset($_COOKIE[self::$passwordName])) {
+        if (! isset($_COOKIE[self::$usernameKey]) || ! isset($_COOKIE[self::$passwordKey])) {
             throw new \Exception("Cookies not set");
         }
-        // FIXME: Line too long
-        return new UserModel($_COOKIE[self::$userNameName]);
+
+        return new UserModel($_COOKIE[self::$usernameKey], $_COOKIE[self::$passwordKey]);
     }
 
-    public function unsetUserCookies()
+    /**
+     * Remove cookie credentials on client
+     */
+    public function removeSavedCredentials()
     {
-        // Set expiration to 0
-        setcookie(self::$userNameName, '', 0);
-        setcookie(self::$passwordName, '', 0);
+        // Set expiration in the past
+        setcookie(self::$usernameKey, '', time()-3600);
+        setcookie(self::$passwordKey, '', time()-3600);
+
+        // Unset variables so they do not accidentally get called later
+        unset($_COOKIE[self::$usernameKey]);
+        unset($_COOKIE[self::$passwordKey]);
     }
 
     /**
@@ -103,33 +124,22 @@ class LoginView
         $this->showFormError(self::$errorWrongCredentials);
     }
 
-    public function showWeWillRememberYou()
-    {
-        $this->weWillRememberYou = true;
-    }
-
-    public function showLoginSuccess()
-    {
-        // FIXME: Is this really the best way?
-        // This later gets checked in getHTML()
-        $this->user = $user;
-    }
-
-    // **** TODO: Remove these functions
     /**
-     * @return string posted username, or empty string
+     * If loginpage is active
+     * @return bool
      */
-    public function getPostUserName()
+    public function userWantsToLogIn()
     {
-        return isset($_POST[self::$userNameName]) ? trim($_POST[self::$userNameName]) : "";
+        return isset($_GET[self::$loginPage]);
     }
 
     /**
-     * @return string posted password, or empty string
+     * If logoutpage is active
+     * @return bool
      */
-    public function getPostPassword()
+    public function userWantsToLogOut()
     {
-        return isset($_POST[self::$passwordName]) ? trim($_POST[self::$passwordName]) : "";
+        return isset($_GET[self::$logoutPage]);
     }
 
     /**
@@ -137,7 +147,7 @@ class LoginView
      */
     public function userWantsToStayLoggedIn()
     {
-        return isset($_POST[self::$autoLoginName]) ? true : false;
+        return isset($_POST[self::$stayLoggedInKey]) ? true : false;
     }
     // **** END
 
@@ -154,9 +164,8 @@ class LoginView
     public function getCredentialsFromForm()
     {
         // Get input fields
-        // NOTE: Dependancy on form output
-        $username = isset($_POST[self::$userNameName]) ? trim($_POST[self::$userNameName]) : "";
-        $password = isset($_POST[self::$passwordName]) ? trim($_POST[self::$passwordName]) : "";
+        $username = isset($_POST[self::$usernameKey]) ? trim($_POST[self::$usernameKey]) : "";
+        $password = isset($_POST[self::$passwordKey]) ? trim($_POST[self::$passwordKey]) : "";
 
         // Check for empty fields
         // TODO: Don't depend on exception messages
@@ -183,14 +192,13 @@ class LoginView
         // Make sure this function isn't called without being logged in
         assert($this->loginModel->isLoggedIn());
 
-        // TODO: Find out login-method?
-        $authBy = '';
+        // Get name of logged in user
+        $loggedInUser = $this->loginModel->getLoggedInUser();
+        $loggedInUserName = $loggedInUser->getUsername();
 
-        //return "Logged in";
         return "
-            <h2>" . $this->loginModel->getLoggedInUser()->getUsername() . " är inloggad.</h2>
-            $authBy
-            <p><a href='?" . self::$logout . "'>Logga ut</a></p>
+            <h2>$loggedInUserName är inloggad.</h2>
+            <p><a href='?" . self::$logoutPage . "'>Logga ut</a></p>
         ";
     }
 
@@ -201,8 +209,10 @@ class LoginView
     public function getFormHTML($message = '')
     {
         // TODO: Clean up this function
-        // TODO: Get action from app-view...?
+
         // Declare strings to be interpolated
+
+        // Legend
         $legend = "Logga in - Skriv in användarnamn och lösenord";
 
         // Surround the message in p-tags if not empty
@@ -212,45 +222,40 @@ class LoginView
         $checked = $this->userWantsToStayLoggedIn() ? 'checked=\"checked\"' : '';
 
         // Construct the form
+        // TODO: Get action from app-view...?
         return "
         <h2>Ej inloggad</h2>
 
-        <form action='?" . self::$login . "' method='post'>
+        <form action='?" . self::$loginPage . "' method='post'>
             <fieldset>
                 <legend>Logga in - Skriv in användarnamn och lösenord</legend>
                 $message
                 <label for='" . self::$userNameID . "'>Användarnamn:</label>
-                <input type='text' size='20' name='" . self::$userNameName . "'
-                id='" . self::$userNameID . "' value='" . $this->getPostUserName() . "' />
+                <input type='text' size='20' name='" . self::$usernameKey . "'
+                id='" . self::$userNameID . "' value='" . $this->getSafeInputStringFromPost(self::$usernameKey) . "' />
 
                 <label for='" . self::$passwordID . "'>Lösenord:</label>
-                <input type='password' size='20' name='" . self::$passwordName . "' id='" . self::$passwordID . "' />
+                <input type='password' size='20' name='" . self::$passwordKey . "' id='" . self::$passwordID . "' />
 
-                <label for='" . self::$autoLoginID . "'>Håll mig inloggad:</label>
-                <input type='checkbox' name='" . self::$autoLoginName . "' id='" . self::$autoLoginID . "' $checked />
+                <label for='" . self::$stayLoggedInID . "'>Håll mig inloggad:</label>
+                <input type='checkbox' name='" . self::$stayLoggedInKey . "'
+                id='" . self::$stayLoggedInID . "' $checked />
 
                 <input type='submit' value='Log in'>
             </fieldset>
         </form>";
     }
 
-    // TODO: Write your own functions for this
+    // TODO: Move these to a helper-class
 
     /**
-     * Returns a sanitized value from the form.
-     *
-     * From https://github.com/dntoll/1DV408ExamplesHT2013/blob/master/HanteraIndata/BookView.php
-     *
-     * @param  string $name
-     * @return string empty if value is not set
+     * Get variable $key from $_POST
+     * @param  string $key key of post-variable
+     * @return string      sanitized input, empty string if not set
      */
-    private function getSafeInputField($name)
+    private function getSafeInputStringFromPost($key)
     {
-        if (isset($_POST[$name]) == false) {
-            return "";
-        }
-
-        return $this->sanitize($_POST[$name]);
+        return isset($_POST[$key]) ? $this->sanitize($_POST[$key]) : "";
     }
 
     /**
