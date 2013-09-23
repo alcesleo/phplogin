@@ -17,6 +17,10 @@ class UserListModel
      */
     private $db;
 
+    /**
+     * Table in the database that stores users
+     * @var string
+     */
     private static $tableName = 'User';
 
     /**
