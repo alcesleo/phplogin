@@ -16,7 +16,7 @@ class Router
     /**
      * Use the URL to dispatch the correct controller and action
      */
-    public static function routeToController()
+    public static function dispatch()
     {
         // If base request
         if ($_SERVER['REQUEST_URI'] == '/') {
