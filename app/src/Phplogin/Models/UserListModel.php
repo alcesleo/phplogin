@@ -5,6 +5,10 @@ namespace Phplogin\Models;
 use PDO;
 use Phplogin\Exceptions\NotFoundException;
 
+// TODO: Move this to a lib?
+/**
+ * Uses a SQLite3 database to access registered users
+ */
 class UserListModel
 {
     /**
@@ -12,6 +16,8 @@ class UserListModel
      * @var PDO object
      */
     private $db;
+
+    private static $tableName = 'User';
 
     /**
      * @param string $fileName Path to SQLite3 database file
@@ -34,6 +40,7 @@ class UserListModel
         $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Make sure tables exist
+        // TODO: This should not be here in production
         $this->createTable();
     }
 
@@ -43,12 +50,12 @@ class UserListModel
      */
     private function createTable()
     {
-        // FIXME: String dependancy
-        $sql = "CREATE TABLE IF NOT EXISTS User (
-            ID INTEGER PRIMARY KEY AUTOINCREMENT,
-            UserName TEXT NOT NULL UNIQUE,
-            Hash CHAR(40) NOT NULL
-        )";
+        $sql = "CREATE TABLE IF NOT EXISTS " . self::$tableName . "
+            (
+                ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                UserName TEXT NOT NULL UNIQUE,
+                Hash CHAR(40) NOT NULL
+            )";
 
         $this->db->exec($sql);
     }
@@ -59,16 +66,16 @@ class UserListModel
      * @param  string $userName
      * @return UserModel
      */
-    public function getUserByName($userName)
+    public function getUserByName($username)
     {
-        // FIXME: String dependancy
         // Prepare statment
-        $sql = "SELECT * FROM User WHERE UserName = :username";
+        $sql = "SELECT * FROM " . self::$tableName . " WHERE UserName = :username";
         $stmt = $this->db->prepare($sql);
 
         // http://php.net/manual/en/pdostatement.bindparam.php
-        $stmt->bindParam(':username', $userName, PDO::PARAM_STR);
+        $stmt->bindParam(':username', $username, PDO::PARAM_STR);
 
+        // TODO: Look up fetch object
         // Get data from db
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -80,14 +87,19 @@ class UserListModel
         return new UserModel($result['UserName'], $result['Hash']);
     }
 
+    // TODO: Throws?
     /**
      * Insert a user into the database
      * @param  UserModel $user User to save
      */
     public function insertUser(UserModel $user)
     {
+        // TODO: Exception if user already exists
+
         // Prepare statement
-        $sql = "INSERT INTO User (UserName, Hash) VALUES (:username, :hash);";
+        $sql = "INSERT INTO " . self::$tableName . " (UserName, Hash)
+                VALUES (:username, :hash);";
+
         $stmt = $this->db->prepare($sql);
 
         // Bind values
@@ -97,10 +109,25 @@ class UserListModel
         $stmt->execute();
     }
 
-    // FIXME: Testing code - remove
-    public function getUserList()
+    /**
+     * TODO: Finish this function, private for now
+     * Update a user in the database
+     * @param  UserModel $user The user to update
+     * @return [type]          [description]
+     */
+    private function updateUser(UserModel $user)
     {
-        $result = $this->db->query('SELECT * FROM User');
-        return $result->fetchAll(PDO::FETCH_ASSOC);
+        // Prepare statement
+        $sql = "UPDATE " . self::$tableName . "
+                SET UserName=:username, Hash=:hash
+                WHERE UserName;";
+
+        $stmt = $this->db->prepare($sql);
+
+        // Bind values
+        $stmt->bindValue(':username', $user->getUsername(), PDO::PARAM_STR);
+        $stmt->bindValue(':hash', $user->getHash(), PDO::PARAM_STR);
+
+        $stmt->execute();
     }
 }
