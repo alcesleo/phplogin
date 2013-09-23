@@ -17,6 +17,7 @@ class AppView
         $this->dateTimeView = new DateTimeView('sv_SE.UTF-8', '%A, den %e %B år %Y. Klockan är [%H:%M:%S].');
     }
 
+    // TODO: Use objects instead of html-strings, combine Page-objects...? Merge(array of Page-objects)
     /**
      * Generate the complete html-page
      * @param string $title title of the page
