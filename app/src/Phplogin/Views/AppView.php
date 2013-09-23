@@ -43,6 +43,7 @@ class AppView
         ";
     }
 
+    // TODO: Put this in a router
     /**
      * Redirects to a page
      * @param string $path Path to redirect to, home if omitted
