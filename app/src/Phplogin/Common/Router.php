@@ -17,7 +17,13 @@ class Router
      * When page is not found, redirect to login-page
      * @var string
      */
-    private static $fourOhFour = '/login/printLoginPage';
+    private static $fourOhFour = '/login';
+
+    /**
+     * Action called when no action is specified
+     * @var string
+     */
+    private static $defaultAction = 'indexAction';
 
     /**
      * Create appropriate controller and call requested action.
@@ -37,9 +43,7 @@ class Router
 
         $request = self::getRequestPathArray();
 
-        // Determine controller
-        // www.example.com/page/action => 'Phplogin\Controllers\PageController'
-        $ctrlName = self::$ctrlNamespace . ucfirst($request[0]) . 'Controller';
+        $ctrlName = self::getControllerName($request[0]);
 
         // No controller with that name
         if (! class_exists($ctrlName)) {
@@ -47,7 +51,8 @@ class Router
         }
 
         // Determine action
-        $actionName = $request[1];
+        $request[1] = isset($request[1]) ? $request[1] : '';
+        $actionName = self::getActionName($request[1]);
 
         // No action with that name in specified controller
         if (! method_exists($ctrlName, $actionName)) {
@@ -57,6 +62,29 @@ class Router
         // Call the action
         $ctrl = new $ctrlName();
         $ctrl->$actionName();
+    }
+
+    /**
+     * 'example' => 'Namespace\ExampleController'
+     * @param  string $name name of controller
+     * @return string       full reference to controller
+     */
+    private static function getControllerName($name)
+    {
+        // Determine controller
+        // www.example.com/page/action => 'Phplogin\Controllers\PageController'
+        return self::$ctrlNamespace . ucfirst($name) . 'Controller';
+    }
+
+    /**
+     * 'example' => exampleAction'
+     * '' => 'indexAction'
+     * @param  string $name name of action
+     * @return string       full name of action
+     */
+    private static function getActionName($name)
+    {
+        return strlen($name) == 0 ? self::$defaultAction : $name . 'Action';
     }
 
     /**
