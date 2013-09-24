@@ -28,7 +28,7 @@ class LoginView
     private static $userNameID = 'UserNameID';
     private static $stayLoggedInID = 'AutoLoginID';
 
-    // Notifications
+    // Notification messages
     const ERR_USERNAME_NOT_SET = 'Användarnamn saknas';
     const ERR_PASSWORD_NOT_SET = 'Lösenord saknas';
     const ERR_AUTHENTICATION_FAILED = 'Felaktigt användarnamn och/eller lösenord.';
@@ -113,17 +113,6 @@ class LoginView
         return true;
     }
 
-    public function showLogoutSuccess()
-    {
-        // TODO: Change name of this function to imply notification
-        $this->showFormError(self::$loggedOutSuccess);
-    }
-
-    public function showLoginFailed()
-    {
-        $this->showFormError(self::$errorWrongCredentials);
-    }
-
     /**
      * If loginpage is active
      * @return bool
@@ -150,11 +139,6 @@ class LoginView
         return isset($_POST[self::$stayLoggedInKey]) ? true : false;
     }
     // **** END
-
-    private function showFormError($message)
-    {
-        $this->notificationMessage = $message;
-    }
 
     /**
      * Get credentials from form input fields
