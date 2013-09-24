@@ -43,7 +43,7 @@ class LoginController
     /**
      * Prints out the entire html-page
      */
-    public function printLoginPage()
+    public function indexAction()
     {
         $loginHTML = $this->handleState();
         print $this->appView->getHTML($loginHTML);
@@ -60,8 +60,6 @@ class LoginController
         if ($this->loginView->userWantsToLogOut()) {
             return $this->logOut();
         }
-
-        // TODO: Register user
 
         // Session login
         if ($this->loginModel->isLoggedIn()) {
