@@ -142,6 +142,8 @@ class TestCasesCest
         $I->see('Admin är inloggad');
     }
 
+    // TODO: Separate this into its own cest
+
     // TC2.1
     public function logOut(WebGuy $I)
     {
@@ -179,5 +181,7 @@ class TestCasesCest
         $I->seeElement('input');
         $I->see('Ej Inloggad');
     }
+
+    // TODO: Write the rest of the tests
 
 }
