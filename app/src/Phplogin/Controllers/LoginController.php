@@ -94,7 +94,7 @@ class LoginController
         }
         */
 
-        return $this->loginView->getLoginSuccessHTML();
+        return $this->loginView->getLoginSuccessHTML(LoginView::LOGGED_IN_WITH_FORM);
     }
 
     // TODO: Should this be its own controller?

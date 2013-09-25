@@ -33,6 +33,8 @@ class LoginView
     const ERR_PASSWORD_NOT_SET = 'Lösenord saknas';
     const ERR_AUTHENTICATION_FAILED = 'Felaktigt användarnamn och/eller lösenord.';
     const LOGOUT_SUCCESS = "Du har nu loggat ut";
+    const LOGGED_IN_WITH_FORM = 'Inloggning lyckades';
+    const LOGGED_IN_WITH_COOKIES = 'Inloggning lyckades med hjälp av cookies';
 
     /**
      * @param LoginModel $loginModel
@@ -169,7 +171,7 @@ class LoginView
      * user, and a logout-button.
      * @return string HTML
      */
-    public function getLoginSuccessHTML()
+    public function getLoginSuccessHtml($message = '')
     {
         // TODO: Review this function, testing code
 
@@ -177,11 +179,11 @@ class LoginView
         assert($this->loginModel->isLoggedIn());
 
         // Get name of logged in user
-        $loggedInUser = $this->loginModel->getLoggedInUser();
-        $loggedInUserName = $loggedInUser->getUsername();
+        $loggedInUsername = $this->loginModel->getLoggedInUsername();
 
         return "
-            <h2>$loggedInUserName är inloggad.</h2>
+            <h2>$loggedInUsername är inloggad.</h2>
+            $message
             <p><a href='?" . self::$logoutPage . "'>Logga ut</a></p>
         ";
     }

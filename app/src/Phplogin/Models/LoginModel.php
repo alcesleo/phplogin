@@ -3,7 +3,7 @@
 namespace Phplogin\Models;
 
 use Phplogin\Models\UserModel;
-use Phplogin\Models\UserListModel;
+use Phplogin\Models\ServiceModel;
 use Phplogin\Models\UserCredentialsModel;
 use Phplogin\Exceptions\NotAuthorizedException;
 use Phplogin\Exceptions\NotFoundException;
@@ -13,7 +13,7 @@ class LoginModel
 {
     /**
      * User-database
-     * @var UserListModel
+     * @var ServiceModel
      */
     private $db;
 
@@ -24,11 +24,11 @@ class LoginModel
     private static $sessionLoggedIn = 'LoginModel::LoggedInUser';
 
     /**
-     * @param UserListModel $database Database to match the login-attempts to
+     * @param ServiceModel $database Database to match the login-attempts to
      */
-    public function __construct(UserListModel $database)
+    public function __construct(ServiceModel $database)
     {
-        // TODO: Use helper class instead of UserListModel
+        // TODO: Use helper class instead of ServiceModel
         $this->db = $database;
     }
 
@@ -60,16 +60,16 @@ class LoginModel
     }
 
     /**
-     * Returns the logged in user
-     * @return UserModel
+     * Returns the name of the sessions logged in user
+     * @return string
      */
-    public function getLoggedInUser()
+    public function getLoggedInUsername()
     {
         if (! $this->isLoggedIn()) {
             throw new Exception('No user logged in');
         }
         // TODO: Make sure this is a usermodel
-        return unserialize($_SESSION[self::$sessionLoggedIn]);
+        return $_SESSION[self::$sessionLoggedIn];
     }
 
     /**
@@ -79,7 +79,8 @@ class LoginModel
     private function persistLogin(UserModel $user)
     {
         // TODO: Check for session theft
-        $_SESSION[self::$sessionLoggedIn] = serialize($user);
+        $_SESSION[self::$sessionLoggedIn] = $user->getUsername();
+
     }
 
 
