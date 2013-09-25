@@ -7,12 +7,25 @@ class AuthenticateUserCest
 
     public function _before()
     {
-        // TODO: Remove cookies
+        $this->unsetCookies();
     }
 
     public function _after()
     {
 
+    }
+
+    private function unsetCookies()
+    {
+        if (isset($_SERVER['HTTP_COOKIE'])) {
+            $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
+            foreach($cookies as $cookie) {
+                $parts = explode('=', $cookie);
+                $name = trim($parts[0]);
+                setcookie($name, '', time()-1000);
+                setcookie($name, '', time()-1000, '/');
+            }
+        }
     }
 
     // TC1.1
@@ -62,6 +75,71 @@ class AuthenticateUserCest
 
         $I->see('Ej Inloggad');
         $I->see('Användarnamn saknas');
+    }
+
+    // TC1.5
+    public function failedLoginWithWrongCredentials(WebGuy $I)
+    {
+        $I->wantTo('Fail to log in when entering wrong username and password');
+        $I->amOnPage('/');
+
+        $I->fillField('UserNameID', 'Admin');
+        $I->fillField('PasswordID', 'notcorrect');
+        $I->click('Logga in');
+
+        $I->see('Felaktigt användarnamn och/eller lösenord');
+        $I->seeInField('UserNameID','Admin');
+        $I->see('Ej Inloggad');
+    }
+
+    // TC1.6
+    public function failedLoginWithWrongUsername(WebGuy $I)
+    {
+        $I->wantTo('Fail to log in when entering wrong username but correct password');
+        $I->amOnPage('/');
+
+        $I->fillField('UserNameID', 'Admina');
+        $I->fillField('PasswordID', 'Password');
+        $I->click('Logga in');
+
+        $I->see('Felaktigt användarnamn och/eller lösenord');
+        $I->seeInField('UserNameID','Admina');
+        $I->see('Ej Inloggad');
+    }
+
+    // Helper method used in multiple tests.
+    // This is TC1.7 without actually asserting anything
+    private function logInWithCredentials(WebGuy $I)
+    {
+        $I->amOnPage('/');
+
+        $I->fillField('UserNameID', 'Admin');
+        $I->fillField('PasswordID', 'Password');
+        $I->click('Logga in');
+    }
+
+    // TC1.7
+    public function successfulLoginWithCredentials(WebGuy $I)
+    {
+        $I->wantTo('Log in with the right credentials');
+        $this->logInWithCredentials($I);
+
+        $I->see('Inloggning lyckades');
+        $I->see('Admin är inloggad');
+        $I->seeLink('Logga ut', '?logout');
+    }
+
+    // TC1.8
+    public function loggedInAfterRefresh(WebGuy $I)
+    {
+        $this->logInWithCredentials($I);
+
+        // Refresh the page
+        $I->amOnPage('/');
+
+        $I->dontSee('Inloggning lyckades');
+        $I->seeLink('Logga ut', '?logout');
+        $I->see('Admin är inloggad');
     }
 
 }
