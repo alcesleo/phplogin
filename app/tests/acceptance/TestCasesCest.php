@@ -27,11 +27,12 @@ class TestCasesCest
     // TC1.1
     public function navigateToPage(WebGuy $I)
     {
-        $I->wantTo('See the front page');
+        $I->wantTo('See the normal login page');
         $I->amOnPage('/');
 
         $I->dontSee('Användarnamn saknas');
         $I->dontSee('Lösenord saknas');
+        $I->dontSee('är inloggad');
         $I->seeElement('input'); // I see a form
         $I->see('Klockan är'); // Tests only if it's visible, not how it's formatted
         $I->see('Ej Inloggad');
@@ -134,7 +135,7 @@ class TestCasesCest
         $this->logInWithCredentials($I);
 
         // Refresh the page
-        $I->refreshPage();
+        $I->amOnPage('/');
 
         $I->dontSee('Inloggning lyckades');
         $I->seeLink('Logga ut', '?logout');
@@ -159,11 +160,21 @@ class TestCasesCest
     {
         $this->logInWithCredentials($I);
 
-        // Simulate closing browser
-        //session_destroy();
+        // TODO: Simulate closing browser
 
         $this->navigateToPage($I);
 
+    }
+
+    // TC2.3
+    public function loggedOutAfterRefresh(WebGuy $I)
+    {
+        $this->logInWithCredentials($I);
+        $I->click('Logga ut');
+
+        $I->amOnPage('/'); // refresh
+
+        $I->dontSee('Du har nu loggat ut');
     }
 
 }
