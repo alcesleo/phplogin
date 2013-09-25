@@ -225,7 +225,7 @@ class LoginView
                 <input type='checkbox' name='" . self::$stayLoggedInKey . "'
                 id='" . self::$stayLoggedInID . "' $checked />
 
-                <input type='submit' value='Log in'>
+                <input type='submit' value='Logga in'>
             </fieldset>
         </form>";
     }
