@@ -6,10 +6,7 @@ app/db/
 composer.lock
 
 # Dev files/Scripts
-Guardfile
 deploy.sh
-phpinfo.php
 
 # Temporary files
-/app/src/Phplogin/Views/DebugView.php
 TODO.md
