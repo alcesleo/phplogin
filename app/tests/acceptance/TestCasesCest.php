@@ -2,12 +2,12 @@
 use \WebGuy;
 
 // UC1: https://docs.google.com/document/d/1kaAxV02vO2GlNgHmxEFMik_iYvLQMpErTtCifht9-Uc/edit?pli=1#heading=h.qwf701bxn3r6
-class AuthenticateUserCest
+class TestCasesCest
 {
 
     public function _before()
     {
-        // TODO: Break this out
+        // Delete all cookies
         if (isset($_SERVER['HTTP_COOKIE'])) {
             $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
             foreach($cookies as $cookie) {
@@ -162,6 +162,7 @@ class AuthenticateUserCest
         // Simulate closing browser
         //session_destroy();
 
+        $this->navigateToPage($I);
 
     }
 
