@@ -12,6 +12,8 @@ class AppView
      */
     private $dateTimeView;
 
+    private $body;
+
     public function __construct()
     {
         $this->dateTimeView = new DateTimeView('sv_SE.UTF-8', '%A, den %e %B år %Y. Klockan är [%H:%M:%S].');
@@ -24,7 +26,7 @@ class AppView
      * @param string $body HTML
      * @return string HTML
      */
-    public function getHTML($body, $title = 'PHPLogin')
+    public function getHtml($title = 'PHPLogin')
     {
         $dateHTML = $this->dateTimeView->getHTML();
 
@@ -36,20 +38,15 @@ class AppView
             </head>
             <body>
                 <h1>PHPLogin</h1>
-                $body
+                $this->body
                 $dateHTML
             </body>
             </html>
         ";
     }
 
-    // TODO: Put this in a router
-    /**
-     * Redirects to a page
-     * @param string $path Path to redirect to, home if omitted
-     */
-    public function redirect($path = '/')
+    public function addBody($body)
     {
-        header("Location: $path");
+        $this->body .= "\n" . $body;
     }
 }

@@ -8,7 +8,6 @@ use Phplogin\Models\LoginModel;
 use Phplogin\Views\AppView;
 use PDO;
 
-
 /**
  * Controls and starts the entire app,
  * there can only be one in charge so it's static.
@@ -21,8 +20,12 @@ class MasterController
      */
     private static $dbConnectionString = 'sqlite:db/users.sqlite';
 
+    /**
+     * Run the application
+     */
     public static function run()
     {
+        // TODO: Refactor this
         // Connect to database
         $pdo = new PDO(self::$dbConnectionString);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -34,7 +37,7 @@ class MasterController
         // Launch the, for now, only other controller
         $ctrl = new LoginController($loginModel);
         $view = new AppView();
-        print $view->getHTML($ctrl->handleState());
+        $view->addBody($ctrl->handleState());
+        print $view->getHTML();
     }
-
 }
