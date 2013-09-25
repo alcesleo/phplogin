@@ -172,9 +172,12 @@ class TestCasesCest
         $this->logInWithCredentials($I);
         $I->click('Logga ut');
 
-        $I->amOnPage('/'); // refresh
+         // Refresh
+        $I->amOnPage('/');
 
         $I->dontSee('Du har nu loggat ut');
+        $I->seeElement('input');
+        $I->see('Ej Inloggad');
     }
 
 }
