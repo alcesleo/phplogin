@@ -4,10 +4,8 @@ namespace Phplogin\Controllers;
 
 use Phplogin\Models\LoginModel;
 use Phplogin\Models\UserModel;
-use Phplogin\Models\UserListModel;
 use Phplogin\Views\LoginView;
 use Phplogin\Views\DateTimeView;
-use Phplogin\Views\AppView;
 use Phplogin\Exceptions\NotAuthorizedException;
 use Exception;
 
@@ -30,21 +28,8 @@ class LoginController
 
     public function __construct(LoginModel $loginModel)
     {
-        // TODO: Take instances as params?
-
         $this->loginModel = $loginModel;
-
-        $this->loginView = new LoginView($this->loginModel);
-        $this->appView = new AppView();
-    }
-
-    /**
-     * Prints out the entire html-page
-     */
-    public function indexAction()
-    {
-        $loginHTML = $this->handleState();
-        print $this->appView->getHTML($loginHTML);
+        $this->loginView = new LoginView($loginModel);
     }
 
     /**
@@ -52,7 +37,7 @@ class LoginController
      * on what session, cookies, form fields are set.
      * @return string HTML
      */
-    private function handleState()
+    public function handleState()
     {
         // Log out
         if ($this->loginView->userWantsToLogOut()) {

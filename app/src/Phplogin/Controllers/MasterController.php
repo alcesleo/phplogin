@@ -3,8 +3,9 @@
 namespace Phplogin\Controllers;
 
 use Phplogin\Controllers\LoginController;
-use Phplogin\Models\UserListModel;
+use Phplogin\Models\ServiceModel;
 use Phplogin\Models\LoginModel;
+use Phplogin\Views\AppView;
 use PDO;
 
 
@@ -27,12 +28,13 @@ class MasterController
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Open the db and give it to the LoginModel
-        $userListModel = new UserListModel($pdo);
-        $loginModel = new LoginModel($userListModel);
+        $service = new ServiceModel($pdo);
+        $loginModel = new LoginModel($service);
 
         // Launch the, for now, only other controller
         $ctrl = new LoginController($loginModel);
-        $ctrl->indexAction();
+        $view = new AppView();
+        print $view->getHTML($ctrl->handleState());
     }
 
 }
