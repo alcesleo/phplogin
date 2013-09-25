@@ -24,30 +24,13 @@ class UserListModel
     private static $tableName = 'User';
 
     /**
-     * @param string $fileName Path to SQLite3 database file
+     * @param PDO $database
      */
-    public function __construct($fileName)
+    public function __construct(PDO $database)
     {
-        $this->initDatabase($fileName);
-    }
-
-    /**
-     * Initializes connection to the database
-     * @param  string $fileName path to SQLite3 database file
-     */
-    private function initDatabase($fileName)
-    {
-        // Connect to database
-        $this->db = new PDO("sqlite:$fileName");
-
-        // Set errormode to use php exceptions
-        $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        // Make sure tables exist
-        // TODO: This should not be here in production
+        $this->db = $database;
         $this->createTable();
     }
-
 
     /**
      * Creates the table if it doesn't already exist.

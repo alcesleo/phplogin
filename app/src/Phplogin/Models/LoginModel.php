@@ -28,6 +28,7 @@ class LoginModel
      */
     public function __construct(UserListModel $database)
     {
+        // TODO: Use helper class instead of UserListModel
         $this->db = $database;
     }
 
