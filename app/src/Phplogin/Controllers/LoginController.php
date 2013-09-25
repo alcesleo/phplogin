@@ -111,6 +111,7 @@ class LoginController
         }
         // TODO: Delete cookies / temporary password
 
-        $this->appView->redirect();
+        // TODO: Use a function for this?
+        header('Location: /');
     }
 }
