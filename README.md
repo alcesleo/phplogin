@@ -2,7 +2,7 @@
 
 ## Opinions
 
-- Standards are [PHP-FIG](http://http://www.php-fig.org/).
+- Standards are [PHP-FIG](http://http://www.php-fig.org/), and are checked using [PHP_CodeSniffer](http://pear.php.net/package/PHP_CodeSniffer/).
 - [Composer](http://http://getcomposer.org/) does the autoloading.
 -   Classes have suffixes (`Model`|`View`|`Controller`) even though they are namespaced.
     It is a little redundant, but I think it's worth it to know what role a file has without
@@ -41,8 +41,15 @@ I've also set this in `.htaccess` on the host.
 
 To run the tests:
 
-    # Make sure phpunit is installed
+    # Make sure codeception is installed
     composer install --dev
 
-    # run the tests, the phpunit.xml takes care of the settings
-    phpunit
+    # codecept is either php codecept.phar or vendor/bin/codecept
+    # if you want to use it globally like the commands are written:
+    # add it to your path.
+
+    # generate files
+    codecept build
+
+    # run the tests
+    codecept run
