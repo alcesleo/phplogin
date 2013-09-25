@@ -2,7 +2,7 @@
     "name": "alcesleo/phplogin",
     "description": "A simple login-application",
     "require-dev": {
-        "phpunit/phpunit": "*"
+        "codeception/codeception": "*"
     },
     "autoload": {
         "psr-0": {"Phplogin\\": "src/"}
