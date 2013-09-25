@@ -7,16 +7,7 @@ class AuthenticateUserCest
 
     public function _before()
     {
-        $this->unsetCookies();
-    }
-
-    public function _after()
-    {
-
-    }
-
-    private function unsetCookies()
-    {
+        // TODO: Break this out
         if (isset($_SERVER['HTTP_COOKIE'])) {
             $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
             foreach($cookies as $cookie) {
@@ -28,14 +19,22 @@ class AuthenticateUserCest
         }
     }
 
+    public function _after()
+    {
+
+    }
+
     // TC1.1
     public function navigateToPage(WebGuy $I)
     {
         $I->wantTo('See the front page');
         $I->amOnPage('/');
 
-        $I->see('PHPLogin');
-        $I->see('Klockan är');
+        $I->dontSee('Användarnamn saknas');
+        $I->dontSee('Lösenord saknas');
+        $I->seeElement('input'); // I see a form
+        $I->see('Klockan är'); // Tests only if it's visible, not how it's formatted
+        $I->see('Ej Inloggad');
     }
 
     // TC1.2
@@ -135,11 +134,35 @@ class AuthenticateUserCest
         $this->logInWithCredentials($I);
 
         // Refresh the page
-        $I->amOnPage('/');
+        $I->refreshPage();
 
         $I->dontSee('Inloggning lyckades');
         $I->seeLink('Logga ut', '?logout');
         $I->see('Admin är inloggad');
+    }
+
+    // TC2.1
+    public function logOut(WebGuy $I)
+    {
+        $this->logInWithCredentials($I);
+
+        $I->click('Logga ut');
+
+        $I->see('Du har nu loggat ut');
+        $I->see('Användarnamn'); // TODO: Check that there's a form, not very robust but it works
+        $I->see('Lösenord');
+        $I->see('Ej Inloggad');
+    }
+
+    // TC2.2
+    public function logOutByClosingBrowser(WebGuy $I)
+    {
+        $this->logInWithCredentials($I);
+
+        // Simulate closing browser
+        //session_destroy();
+
+
     }
 
 }
