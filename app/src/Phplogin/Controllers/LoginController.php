@@ -28,13 +28,11 @@ class LoginController
      */
     private $appView;
 
-    public function __construct()
+    public function __construct(LoginModel $loginModel)
     {
         // TODO: Take instances as params?
 
-        // Open the db and give it to the LoginModel
-        $db = new UserListModel('db/users.sqlite');
-        $this->loginModel = new LoginModel($db);
+        $this->loginModel = $loginModel;
 
         $this->loginView = new LoginView($this->loginModel);
         $this->appView = new AppView();
@@ -106,7 +104,7 @@ class LoginController
         // Set cookies
         /*
         if ($this->loginView->userWantsToStayLoggedIn()) {
-            $this->loginModel->getUsername
+            $$this->loginModel->saveTemporaryPassword($user);
             $this->loginView->setCookies($userName, $temporaryPassword);
         }
         */
