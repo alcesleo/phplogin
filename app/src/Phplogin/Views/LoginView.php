@@ -3,6 +3,7 @@
 namespace Phplogin\Views;
 
 use Phplogin\Models\LoginModel;
+use Phplogin\Models\TemporaryPasswordModel;
 use Phplogin\Models\UserCredentialsModel;
 use Exception;
 
@@ -59,14 +60,13 @@ class LoginView
 
     /**
      * Saves a users credentials as coookies
-     * @param UserModel $user The user to save
+     * @param TemporaryPasswordModel $temppw
      */
-    public function saveUserCredentials(UserModel $user)
+    public function saveUserCredentials(TemporaryPasswordModel $temppw)
     {
         // TODO: Variable for time
-        // TODO: Use temporary passwords
-        setcookie(self::$usernameKey, $user->getUsername(), time() + 60);
-        setcookie(self::$passwordKey, $user->getHash(), time() + 60);
+        setcookie(self::$usernameKey, $temppw->getUsername(), time() + 60);
+        setcookie(self::$passwordKey, $temppw->getTemporaryPassword(), time() + 60);
     }
 
     /**

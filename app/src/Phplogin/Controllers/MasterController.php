@@ -34,6 +34,8 @@ class MasterController
         $service = new ServiceModel($pdo);
         $loginModel = new LoginModel($service);
 
+        // TODO if loginModel->isLoggedIn(), else use login/logout controllers
+
         // Launch the, for now, only other controller
         $ctrl = new LoginController($loginModel);
         $view = new AppView();

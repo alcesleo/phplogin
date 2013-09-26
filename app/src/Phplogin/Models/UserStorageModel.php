@@ -9,13 +9,13 @@ use Phplogin\Exceptions\NotFoundException;
 /**
  * Uses a SQLite3 database to access registered users
  */
-class UserListModel
+class UserStorageModel
 {
     /**
      * Holds the database-object
      * @var PDO object
      */
-    private $db;
+    private $pdo;
 
     /**
      * Table in the database that stores users
@@ -28,8 +28,7 @@ class UserListModel
      */
     public function __construct(PDO $database)
     {
-        $this->db = $database;
-        $this->createTable();
+        $this->pdo = $database;
     }
 
     /**
@@ -44,7 +43,7 @@ class UserListModel
                 Hash CHAR(40) NOT NULL
             )";
 
-        $this->db->exec($sql);
+        $this->pdo->exec($sql);
     }
 
 
@@ -53,16 +52,15 @@ class UserListModel
      * @param  string $userName
      * @return UserModel
      */
-    public function getUserByName($username)
+    public function getByName($username)
     {
         // Prepare statment
         $sql = "SELECT * FROM " . self::$tableName . " WHERE UserName = :username";
-        $stmt = $this->db->prepare($sql);
+        $stmt = $this->pdo->prepare($sql);
 
         // http://php.net/manual/en/pdostatement.bindparam.php
         $stmt->bindParam(':username', $username, PDO::PARAM_STR);
 
-        // TODO: Look up fetch object
         // Get data from db
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -71,15 +69,40 @@ class UserListModel
             throw new NotFoundException('User not found');
         }
 
-        return new UserModel($result['UserName'], $result['Hash']);
+        return new UserModel($result['UserName'], $result['Hash'], $result['ID']);
     }
 
-    // TODO: Throws?
+    /**
+     * Get a user object by its ID
+     * @param  int $userId
+     * @return UserModel
+     */
+    public function getById($userId)
+    {
+        // Prepare statment
+        $sql = "SELECT * FROM " . self::$tableName . " WHERE ID = :userid";
+        $stmt = $this->pdo->prepare($sql);
+
+        // http://php.net/manual/en/pdostatement.bindparam.php
+        $stmt->bindParam(':userid', $userId, PDO::PARAM_INT);
+
+        // Get data from pdo
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (! $result) {
+            throw new NotFoundException('User not found');
+        }
+
+        return new UserModel($result['UserName'], $result['Hash'], $result['ID']);
+    }
+
     /**
      * Insert a user into the database
      * @param  UserModel $user User to save
+     * @return bool true on success, false on failure
      */
-    public function insertUser(UserModel $user)
+    public function insert(UserModel $user)
     {
         // TODO: Exception if user already exists
 
@@ -87,34 +110,33 @@ class UserListModel
         $sql = "INSERT INTO " . self::$tableName . " (UserName, Hash)
                 VALUES (:username, :hash);";
 
-        $stmt = $this->db->prepare($sql);
+        $stmt = $this->pdo->prepare($sql);
 
         // Bind values
         $stmt->bindValue(':username', $user->getUsername(), PDO::PARAM_STR);
         $stmt->bindValue(':hash', $user->getHash(), PDO::PARAM_STR);
 
-        $stmt->execute();
+        return $stmt->execute();
     }
 
     /**
-     * TODO: Finish this function, private for now
      * Update a user in the database
      * @param  UserModel $user The user to update
-     * @return [type]          [description]
+     * @return bool true on success, false on failure
      */
-    private function updateUser(UserModel $user)
+    public function update(UserModel $user)
     {
         // Prepare statement
         $sql = "UPDATE " . self::$tableName . "
                 SET UserName=:username, Hash=:hash
                 WHERE UserName;";
 
-        $stmt = $this->db->prepare($sql);
+        $stmt = $this->pdo->prepare($sql);
 
         // Bind values
         $stmt->bindValue(':username', $user->getUsername(), PDO::PARAM_STR);
         $stmt->bindValue(':hash', $user->getHash(), PDO::PARAM_STR);
 
-        $stmt->execute();
+        return $stmt->execute();
     }
 }

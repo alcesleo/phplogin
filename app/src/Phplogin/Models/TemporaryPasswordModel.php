@@ -2,12 +2,19 @@
 
 namespace Phplogin\Models;
 
+use Phplogin\Models\UserModel;
+
 class TemporaryPasswordModel
 {
     /**
+     * @var string
+     */
+    private $username;
+
+    /**
      * @var int
      */
-    private $userID;
+    private $userId;
 
     /**
      * @var string
@@ -16,14 +23,12 @@ class TemporaryPasswordModel
 
     /**
      * If password is not set, generates a new random password.
-     * @param int     $userID                ID of the user
-     * @param string  $temporaryPasswordHash The temporary password
+     * @param string  $temporaryPasswordHash optional passwordhash
      */
-    public function __construct($userID = -1, $temporaryPasswordHash = '')
+    public function __construct($temporaryPasswordHash = null)
     {
-        $this->userID = $userID;
-
-        if ($temporaryPasswordHash === '') {
+        // Set or generate password
+        if ($temporaryPasswordHash === null) {
             $this->password = $this->generateRandomPassword();
         } else {
             $this->password = $temporaryPasswordHash;
@@ -36,7 +41,7 @@ class TemporaryPasswordModel
      */
     public function match(TemporaryPasswordModel $temporaryPassword)
     {
-        if ($this->userID !== $temporaryPassword->userID) {
+        if ($this->userId !== $temporaryPassword->userId) {
             return false;
         }
 
@@ -45,6 +50,56 @@ class TemporaryPasswordModel
         }
 
         return true;
+    }
+
+    /**
+     * @param int $userId
+     */
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
+    }
+
+    /**
+     * @param string $username
+     */
+    public function setUsername($username)
+    {
+        $this->username = $username;
+    }
+
+    /**
+     * @param UserModel $user
+     */
+    public function setUser(UserModel $user)
+    {
+        $this->setUsername($user->getUsername());
+        $this->setUserId($user->getUserId());
+    }
+
+    /**
+     * Returns userId
+     * @return int -1 if not set
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTemporaryPassword()
+    {
+        return $this->password;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUsername()
+    {
+        return $this->username;
     }
 
     /**

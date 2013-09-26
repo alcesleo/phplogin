@@ -16,13 +16,19 @@ class UserModel
     private $passwordHash;
 
     /**
+     * @var int
+     */
+    private $userId;
+
+    /**
      * @param string $username
      * @param string $passwordHash Optional passwordHash
      */
-    public function __construct($username, $passwordHash = null)
+    public function __construct($username, $passwordHash = null, $userId = -1)
     {
         $this->username = $username;
         $this->passwordHash = $passwordHash;
+        $this->userId = $userId;
     }
 
     /**
@@ -38,7 +44,11 @@ class UserModel
      */
     public function getHash()
     {
-        // TODO: What if password is undefined?
         return $this->passwordHash;
+    }
+
+    public function getUserId()
+    {
+        return $this->userId;
     }
 }

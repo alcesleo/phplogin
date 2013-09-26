@@ -86,13 +86,14 @@ class LoginController
             return $this->loginView->getFormHTML(LoginView::ERR_AUTHENTICATION_FAILED);
         }
 
-        // Set cookies
-        /*
+        // Save cookies
         if ($this->loginView->userWantsToStayLoggedIn()) {
-            $$this->loginModel->saveTemporaryPassword($user);
-            $this->loginView->setCookies($userName, $temporaryPassword);
+            // Generate and save on server
+            $temporaryPassword = $this->loginModel->getTemporaryPassword($user);
+            // Save on client
+            $this->loginView->saveUserCredentials($temporaryPassword);
         }
-        */
+
 
         return $this->loginView->getLoginSuccessHTML(LoginView::LOGGED_IN_WITH_FORM);
     }
@@ -106,10 +107,12 @@ class LoginController
     {
         // Only show logged out messege if not already logged out
         if ($this->loginModel->logOut()) {
+            // Delete cookies on client
+            $this->loginView->removeSavedCredentials();
+
             // Show logout success-page
             return $this->loginView->getFormHTML(LoginView::LOGOUT_SUCCESS);
         }
-        // TODO: Delete cookies / temporary password
 
         // TODO: Use a function for this?
         header('Location: /');

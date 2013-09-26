@@ -2,12 +2,14 @@
 
 namespace Phplogin\Models;
 
-use Phplogin\Models\UserModel;
-use Phplogin\Models\ServiceModel;
-use Phplogin\Models\UserCredentialsModel;
+use Exception;
 use Phplogin\Exceptions\NotAuthorizedException;
 use Phplogin\Exceptions\NotFoundException;
-use Exception;
+use Phplogin\Models\EncryptionModel;
+use Phplogin\Models\ServiceModel;
+use Phplogin\Models\TemporaryPasswordModel;
+use Phplogin\Models\UserModel;
+use Phplogin\Models\UserCredentialsModel;
 
 class LoginModel
 {
@@ -15,7 +17,7 @@ class LoginModel
      * User-database
      * @var ServiceModel
      */
-    private $db;
+    private $service;
 
     /**
      * Key to logged in user in session
@@ -26,10 +28,9 @@ class LoginModel
     /**
      * @param ServiceModel $database Database to match the login-attempts to
      */
-    public function __construct(ServiceModel $database)
+    public function __construct(ServiceModel $service)
     {
-        // TODO: Use helper class instead of ServiceModel
-        $this->db = $database;
+        $this->service = $service;
     }
 
     /**
@@ -42,7 +43,7 @@ class LoginModel
     {
         // Get user from database
         try {
-            $user = $this->db->getUserByName($credentials->getUsername());
+            $user = $this->service->getUserByName($credentials->getUsername());
         } catch (NotFoundException $e) {
             // Do not reveal if the user exists
             throw new NotAuthorizedException();
@@ -60,6 +61,48 @@ class LoginModel
     }
 
     /**
+     * Log in a user with saved credentials
+     * @param  TemporaryPasswordModel $temp
+     * @return UserModel
+     * @throws NotAuthorizedException If not authorized, or user doesn't exist
+     */
+    public function logInWithTemporaryPassword(TemporaryPasswordModel $temp)
+    {
+        // Get temp password from database
+        $id = $temp->getUserId();
+        try {
+            $savedPw = $this->service->getTemporaryPasswordById($id);
+        } catch (NotFoundException $e) {
+            // Do not reveal if the user exists
+            throw new NotAuthorizedException();
+        }
+
+        // Authorize
+        if (! $this->authorizeTemporaryPassword($savedPw, $temp)) {
+            throw new NotAuthorizedException();
+        }
+
+        return $this->service->getUserById($id);
+    }
+
+    /**
+     * Generate and save a temporary password on the server
+     * @param  UserModel              $user The user the password should belong to
+     * @return TemporaryPasswordModel       The temporary password to save on the client
+     */
+    public function getTemporaryPassword(UserModel $user)
+    {
+        // Generate temporary password
+        $temppw = new TemporaryPasswordModel();
+        $temppw->setUser($user);
+
+        // Save on server
+        $this->service->saveTemporaryPassword($temppw);
+
+        return $temppw;
+    }
+
+    /**
      * Returns the name of the sessions logged in user
      * @return string
      */
@@ -68,7 +111,6 @@ class LoginModel
         if (! $this->isLoggedIn()) {
             throw new Exception('No user logged in');
         }
-        // TODO: Make sure this is a usermodel
         return $_SESSION[self::$sessionLoggedIn];
     }
 
@@ -83,20 +125,34 @@ class LoginModel
 
     }
 
-
-    // TODO: Why is this here?
+    /**
+     * @param  UserModel            $user        to match with
+     * @param  UserCredentialsModel $credentials to authorize
+     * @return bool
+     */
     private function authorizeCredentials(UserModel $user, UserCredentialsModel $credentials)
     {
+        // Check username match
         if ($credentials->getUsername() != $user->getUsername()) {
             return false;
         }
 
-        // FIXME: Don't encrypt here
-        if (sha1($credentials->getPassword()) != $user->getHash()) {
+        // Check password match
+        if (EncryptionModel::encrypt($credentials->getPassword()) != $user->getHash()) {
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * @param  TemporaryPasswordModel $fromServer
+     * @param  TemporaryPasswordModel $fromClient
+     * @return bool
+     */
+    private function authorizeTemporaryPassword(TemporaryPasswordModel $fromServer, TemporaryPasswordModel $fromClient)
+    {
+        return $fromServer->match($fromClient);
     }
 
     /**
@@ -109,6 +165,7 @@ class LoginModel
         if ($this->isLoggedIn()) {
             // Delete session variables
             unset($_SESSION[self::$sessionLoggedIn]);
+            // TODO: Delete temp-password from server
             return true;
         }
         return false;
