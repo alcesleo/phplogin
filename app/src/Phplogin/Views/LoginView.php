@@ -32,10 +32,12 @@ class LoginView
     // Notification messages
     const ERR_USERNAME_NOT_SET = 'Användarnamn saknas';
     const ERR_PASSWORD_NOT_SET = 'Lösenord saknas';
-    const ERR_AUTHENTICATION_FAILED = 'Felaktigt användarnamn och/eller lösenord.';
+    const ERR_FORM_AUTHENTICATION_FAILED = 'Felaktigt användarnamn och/eller lösenord.';
+    const ERR_COOKIE_AUTHENTICATION_FAILED = 'Felaktig information i kaka.';
     const LOGOUT_SUCCESS = "Du har nu loggat ut";
     const LOGGED_IN_WITH_FORM = 'Inloggning lyckades';
-    const LOGGED_IN_WITH_COOKIES = 'Inloggning lyckades med hjälp av cookies';
+    const LOGGED_IN_WITH_FORM_CHECKED = 'Inloggning lyckades och vi kommer ihåg dig nästa gång';
+    const LOGGED_IN_WITH_COOKIES = 'Inloggning lyckades via cookies';
 
     /**
      * @param LoginModel $loginModel
@@ -71,16 +73,19 @@ class LoginView
 
     /**
      * Return an object containing the credentials saved in cookies
-     * @return UserModel
+     * @return TemporaryPasswordModel
      * @throws Exception If no credentials are saved
      */
     public function getSavedCredentials()
     {
         if (! isset($_COOKIE[self::$usernameKey]) || ! isset($_COOKIE[self::$passwordKey])) {
-            throw new \Exception("Cookies not set");
+            throw new Exception("Cookies not set");
         }
 
-        return new UserModel($_COOKIE[self::$usernameKey], $_COOKIE[self::$passwordKey]);
+        // Construct temporary password
+        $ret = new TemporaryPasswordModel($_COOKIE[self::$passwordKey]);
+        $ret->setUsername($_COOKIE[self::$usernameKey]);
+        return $ret;
     }
 
     /**
@@ -96,6 +101,10 @@ class LoginView
         unset($_COOKIE[self::$usernameKey]);
         unset($_COOKIE[self::$passwordKey]);
     }
+
+    /****************************************
+    Form
+    *****************************************/
 
     /**
      * @return boolean
@@ -147,7 +156,7 @@ class LoginView
      * @return UserCredentialsModel
      * @throws Exception If malformed input
      */
-    public function getCredentialsFromForm()
+    public function getFormCredentials()
     {
         // Get input fields
         $username = isset($_POST[self::$usernameKey]) ? trim($_POST[self::$usernameKey]) : "";
