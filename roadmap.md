@@ -10,7 +10,6 @@ _Italics_ are future versions with thought goals.
 | v0.2     | Code review, fixme-tags but no changes since last commit                         |
 | v0.2.1   | Fix issues found in code review, resulting in big architectural changes, SQLite3 |
 | _v0.2.2_ | Temporary password saving in cookies to remember users                           |
-| _v0.2.3_ | Implement functionality to register users ([specs][UC123])                       |
 | _v0.3_   | Full compliance with [MVC] rules                                                 |
 
 [UC12]: https://docs.google.com/document/d/1f53RvlJ2TgyI0EaQpBqI-6UpPo9bsqEjvNkeVP8yIGc/edit?pli=1
