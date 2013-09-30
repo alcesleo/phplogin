@@ -3,6 +3,7 @@
 namespace Phplogin\Models;
 
 use PDO;
+use Phplogin\Exceptions\NotFoundException;
 use Phplogin\Models\TemporaryPasswordModel;
 
 class TemporaryPasswordStorageModel
@@ -70,6 +71,21 @@ class TemporaryPasswordStorageModel
      */
     public function idExists($userId)
     {
+        // FIXME: This function is unnecessary
+        try {
+            $this->getById($userId);
+        } catch (NotFoundException $e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @param  int $userId
+     * @return TemporaryPasswordModel
+     */
+    public function getById($userId)
+    {
         // Prepare statement
         $sql = "SELECT * FROM " . self::$tableName . " WHERE UserID = :userid";
 
@@ -77,9 +93,14 @@ class TemporaryPasswordStorageModel
         $stmt->bindValue(':userid', $userId, PDO::PARAM_INT);
         $stmt->execute();
 
-        // Returns false on not found
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (! $result) {
+            throw new NotFoundException();
+        }
 
-        return $result === false ? false : true;
+        $temppw = new TemporaryPasswordModel($result['TemporaryPassword']);
+        $temppw->setUserId(3);
+
+        return $temppw;
     }
 }

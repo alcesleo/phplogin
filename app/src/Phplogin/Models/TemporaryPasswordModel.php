@@ -36,15 +36,13 @@ class TemporaryPasswordModel
     }
 
     /**
+     * Matches the PASSWORD with another TemporaryPasswordModel
+     *
      * @param  TemporaryPassword $temporaryPassword to match with
      * @return bool
      */
     public function match(TemporaryPasswordModel $temporaryPassword)
     {
-        if ($this->userId !== $temporaryPassword->userId) {
-            return false;
-        }
-
         if ($this->password !== $temporaryPassword->password) {
             return false;
         }

@@ -73,7 +73,7 @@ class LoginView
 
     /**
      * Return an object containing the credentials saved in cookies
-     * @return TemporaryPasswordModel
+     * @return TemporaryPasswordModel containing Username and temporary password
      * @throws Exception If no credentials are saved
      */
     public function getSavedCredentials()
@@ -183,9 +183,6 @@ class LoginView
     public function getLoginSuccessHtml($message = '')
     {
         // TODO: Review this function, testing code
-
-        // Make sure this function isn't called without being logged in
-        assert($this->loginModel->isLoggedIn());
 
         // Get name of logged in user
         $loggedInUsername = $this->loginModel->getLoggedInUsername();

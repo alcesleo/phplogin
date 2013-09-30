@@ -45,6 +45,15 @@ class ServiceModel
     }
 
     /**
+     * @param  int $temppwId
+     * @return TemporaryPasswordModel
+     */
+    public function getTemporaryPasswordById($temppwId)
+    {
+        return $this->tempStorage->getById($temppwId);
+    }
+
+    /**
      * Inserts or updates the passed in temporary password
      * @param  TemporaryPasswordModel $temppw
      * @return bool                           true on success, false on failure

@@ -68,10 +68,17 @@ class LoginModel
      */
     public function logInWithTemporaryPassword(TemporaryPasswordModel $temp)
     {
-        // Get temp password from database
-        $id = $temp->getUserId();
+        // Get user from database
+        // FIXME: Duplicated code
         try {
-            $savedPw = $this->service->getTemporaryPasswordById($id);
+            $user = $this->service->getUserByName($temp->getUsername());
+        } catch (NotFoundException $e) {
+            // Do not reveal if the user exists
+            throw new NotAuthorizedException();
+        }
+
+        try {
+            $savedPw = $this->service->getTemporaryPasswordById($user->getUserId());
         } catch (NotFoundException $e) {
             // Do not reveal if the user exists
             throw new NotAuthorizedException();
@@ -82,7 +89,9 @@ class LoginModel
             throw new NotAuthorizedException();
         }
 
-        return $this->service->getUserById($id);
+        $this->persistLogin($user);
+
+        return $user;
     }
 
     /**
@@ -90,7 +99,7 @@ class LoginModel
      * @param  UserModel              $user The user the password should belong to
      * @return TemporaryPasswordModel       The temporary password to save on the client
      */
-    public function getTemporaryPassword(UserModel $user)
+    public function generateTemporaryPassword(UserModel $user)
     {
         // Generate temporary password
         $temppw = new TemporaryPasswordModel();
