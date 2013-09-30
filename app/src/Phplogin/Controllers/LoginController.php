@@ -105,17 +105,14 @@ class LoginController
      */
     private function loginWithSavedCredentials()
     {
-        // Get usercredentials from form view
         try {
+            // Get usercredentials from form view
             $temppw = $this->loginView->getSavedCredentials();
-        } catch (Exception $e) {
-            return $this->loginView->getFormHTML(LoginView::ERR_COOKIE_AUTHENTICATION_FAILED);
-        }
-
-        // Authenticate
-        try {
+            // Authenticate
             $user = $this->loginModel->logInWithTemporaryPassword($temppw);
-        } catch (NotAuthorizedException $e) {
+        } catch (Exception $e) {
+            // Delete invalid cookies
+            $this->loginView->removeSavedCredentials();
             return $this->loginView->getFormHTML(LoginView::ERR_COOKIE_AUTHENTICATION_FAILED);
         }
 
