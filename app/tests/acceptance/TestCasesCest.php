@@ -8,6 +8,7 @@ class TestCasesCest
     public function _before()
     {
         // Delete all cookies
+        /*
         if (isset($_SERVER['HTTP_COOKIE'])) {
             $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
             foreach($cookies as $cookie) {
@@ -17,6 +18,8 @@ class TestCasesCest
                 setcookie($name, '', time()-1000, '/');
             }
         }
+        */
+        //setcookie('PHPSESSID', '', time()-1000);
     }
 
     public function _after()
@@ -33,7 +36,7 @@ class TestCasesCest
         $I->dontSee('Användarnamn saknas');
         $I->dontSee('Lösenord saknas');
         $I->dontSee('är inloggad');
-        $I->seeElement('input'); // I see a form
+        $I->seeElement('form');
         $I->see('Klockan är'); // Tests only if it's visible, not how it's formatted
         $I->see('Ej Inloggad');
     }
@@ -61,7 +64,7 @@ class TestCasesCest
 
         $I->see('Ej Inloggad');
         $I->see('Lösenord saknas');
-        $I->seeInField('UserNameID','Admin');
+        $I->seeInField('UserNameID', 'Admin');
     }
 
     // TC1.4
@@ -88,7 +91,7 @@ class TestCasesCest
         $I->click('Logga in');
 
         $I->see('Felaktigt användarnamn och/eller lösenord');
-        $I->seeInField('UserNameID','Admin');
+        $I->seeInField('UserNameID', 'Admin');
         $I->see('Ej Inloggad');
     }
 
@@ -103,7 +106,7 @@ class TestCasesCest
         $I->click('Logga in');
 
         $I->see('Felaktigt användarnamn och/eller lösenord');
-        $I->seeInField('UserNameID','Admina');
+        $I->seeInField('UserNameID', 'Admina');
         $I->see('Ej Inloggad');
     }
 
@@ -132,6 +135,7 @@ class TestCasesCest
     // TC1.8
     public function loggedInAfterRefresh(WebGuy $I)
     {
+        $I->wantTo('be online after I hit refresh');
         $this->logInWithCredentials($I);
 
         // Refresh the page
@@ -147,6 +151,7 @@ class TestCasesCest
     // TC2.1
     public function logOut(WebGuy $I)
     {
+        $I->wantTo('log out by hitting the log out-button');
         $this->logInWithCredentials($I);
 
         $I->click('Logga ut');
@@ -160,6 +165,7 @@ class TestCasesCest
     // TC2.2
     public function logOutByClosingBrowser(WebGuy $I)
     {
+        $I->wantTo('log out by closing my browser');
         $this->logInWithCredentials($I);
 
         // TODO: Simulate closing browser
@@ -171,6 +177,7 @@ class TestCasesCest
     // TC2.3
     public function loggedOutAfterRefresh(WebGuy $I)
     {
+        $I->wantTo('be logged out even after I hit refresh.');
         $this->logInWithCredentials($I);
         $I->click('Logga ut');
 
@@ -182,6 +189,68 @@ class TestCasesCest
         $I->see('Ej Inloggad');
     }
 
-    // TODO: Write the rest of the tests
+    // TODO: TC2.4 & TC2.5
 
+    // TC3.1
+    public function stayLoggedIn(WebGuy $I)
+    {
+        $I->wantTo('log in using the stay logged in feature');
+        $I->amOnPage('/');
+
+        $I->fillField('UserNameID', 'Admin');
+        $I->fillField('PasswordID', 'Password');
+        $I->checkOption('AutoLoginID');
+        $I->click('Logga in');
+
+        $I->see('Inloggning lyckades och vi kommer ihåg dig nästa gång');
+        $I->seeLink('Logga ut', '?logout');
+        $I->see('Admin är inloggad');
+        $I->canSeeCookie('LoginView::UserName'); // TODO: Make this work on other names
+        $I->canSeeCookie('LoginView::Password');
+        // TODO: Check that password is encrypted
+    }
+
+    // TC3.2
+    public function stayLoggedInAfterRefreshWithoutFeedback(WebGuy $I)
+    {
+        $I->wantTo('see the feedback disappear when I refresh');
+        $I->amOnPage('/');
+
+        $I->fillField('UserNameID', 'Admin');
+        $I->fillField('PasswordID', 'Password');
+        $I->checkOption('AutoLoginID');
+        $I->click('Logga in');
+
+        // Refresh
+        $I->amOnPage('/');
+
+        $I->dontSee('Inloggning lyckades');
+        $I->seeLink('Logga ut', '?logout');
+        $I->see('Admin är inloggad');
+        $I->canSeeCookie('LoginView::UserName'); // TODO: Make this work on other names
+        $I->canSeeCookie('LoginView::Password');
+    }
+
+    public function logInWithCookies(WebGuy $I)
+    {
+        $I->wantTo('log in with cookies');
+        $I->amOnPage('/');
+
+        // TC3.1
+        $I->fillField('UserNameID', 'Admin');
+        $I->fillField('PasswordID', 'Password');
+        $I->checkOption('AutoLoginID');
+        $I->click('Logga in');
+
+        // TODO: Remove PHPSESSID
+
+        // refresh
+        $I->amOnPage('/');
+
+        $I->see('Inloggning lyckades via cookies');
+        $I->seeLink('Logga ut', '?logout');
+        $I->see('Admin är inloggad');
+        $I->canSeeCookie('LoginView::UserName'); // TODO: Make this work on other names
+        $I->canSeeCookie('LoginView::Password');
+    }
 }
