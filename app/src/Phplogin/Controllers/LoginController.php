@@ -51,7 +51,7 @@ class LoginController
 
         // Cookie login
         if ($this->loginView->userHasSavedCredentials()) {
-            return $this->loginWithCookies();
+            return $this->loginWithSavedCredentials();
         }
 
         // Form login
@@ -72,7 +72,7 @@ class LoginController
     {
         // Get usercredentials from form view
         try {
-            $credentials = $this->loginView->getCredentialsFromForm();
+            $credentials = $this->loginView->getFormCredentials();
         } catch (Exception $e) {
             // TODO: Use custom exceptions instead of passing through errors from the model
             return $this->loginView->getFormHTML($e->getMessage());
@@ -83,19 +83,45 @@ class LoginController
             $user = $this->loginModel->logInWithCredentials($credentials);
         } catch (NotAuthorizedException $e) {
             // TODO: String belongs in loginview
-            return $this->loginView->getFormHTML(LoginView::ERR_AUTHENTICATION_FAILED);
+            return $this->loginView->getFormHTML(LoginView::ERR_FORM_AUTHENTICATION_FAILED);
         }
 
         // Save cookies
         if ($this->loginView->userWantsToStayLoggedIn()) {
             // Generate and save on server
-            $temporaryPassword = $this->loginModel->getTemporaryPassword($user);
+            $temporaryPassword = $this->loginModel->generateTemporaryPassword($user);
             // Save on client
             $this->loginView->saveUserCredentials($temporaryPassword);
+
+            return $this->loginView->getLoginSuccessHTML(LoginView::LOGGED_IN_WITH_FORM_CHECKED);
         }
 
-
         return $this->loginView->getLoginSuccessHTML(LoginView::LOGGED_IN_WITH_FORM);
+    }
+
+    /**
+     * Handles login by cookies
+     * @return string HTML
+     */
+    private function loginWithSavedCredentials()
+    {
+        // Get usercredentials from form view
+        try {
+            $temppw = $this->loginView->getSavedCredentials();
+        } catch (Exception $e) {
+            return $this->loginView->getFormHTML(LoginView::ERR_COOKIE_AUTHENTICATION_FAILED);
+        }
+
+        // Authenticate
+        try {
+            $user = $this->loginModel->logInWithTemporaryPassword($temppw);
+        } catch (NotAuthorizedException $e) {
+            return $this->loginView->getFormHTML(LoginView::ERR_COOKIE_AUTHENTICATION_FAILED);
+        }
+
+        // TODO: Refresh the cookie
+
+        return $this->loginView->getLoginSuccessHTML(LoginView::LOGGED_IN_WITH_COOKIES);
     }
 
     // TODO: Should this be its own controller?
