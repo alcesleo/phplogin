@@ -5,7 +5,6 @@ namespace Phplogin\Models;
 use PDO;
 use Phplogin\Exceptions\NotFoundException;
 
-// TODO: Move this to a lib?
 /**
  * Uses a SQLite3 database to access registered users
  */

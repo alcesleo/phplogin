@@ -72,7 +72,7 @@ class LoginModel
         try {
             // Get user from database
             $user = $this->service->getUserByName($temp->getUsername());
-            // Get temporary password from server
+            // Get temporary password from database
             $savedPw = $this->service->getTemporaryPasswordById($user->getUserId());
         } catch (NotFoundException $e) {
             // Do not reveal if the user exists
@@ -115,7 +115,27 @@ class LoginModel
         if (! $this->isLoggedIn()) {
             throw new Exception('No user logged in');
         }
-        return $_SESSION[self::$sessionLoggedIn];
+        return $this->getLoggedInUser()->getUsername();
+    }
+
+    /**
+     * @return int
+     */
+    public function getLoggedInUserId()
+    {
+        return $this->getLoggedInUser()->getUserId();
+    }
+
+    /**
+     * @return UserModel
+     */
+    private function getLoggedInUser()
+    {
+        // TODO: Validate as user object
+        if (! $this->isLoggedIn()) {
+            throw new Exception('No user logged in');
+        }
+        return unserialize($_SESSION[self::$sessionLoggedIn]);
     }
 
     /**
@@ -125,9 +145,9 @@ class LoginModel
     private function persistLogin(UserModel $user)
     {
         // TODO: Check for session theft
-        $_SESSION[self::$sessionLoggedIn] = $user->getUsername();
-
+        $_SESSION[self::$sessionLoggedIn] = serialize($user);
     }
+
 
     /**
      * @param  UserModel            $user        to match with
@@ -167,9 +187,11 @@ class LoginModel
     public function logOut()
     {
         if ($this->isLoggedIn()) {
+            // Remove from db
+            $this->service->deleteTemporaryPassword($this->getLoggedInUserId());
+
             // Delete session variables
             unset($_SESSION[self::$sessionLoggedIn]);
-            // TODO: Delete temp-password from server
             return true;
         }
         return false;

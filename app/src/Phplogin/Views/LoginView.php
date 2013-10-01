@@ -93,13 +93,15 @@ class LoginView
      */
     public function removeSavedCredentials()
     {
-        // Set expiration in the past
-        setcookie(self::$usernameKey, '', time()-3600);
-        setcookie(self::$passwordKey, '', time()-3600);
+        if ($this->userHasSavedCredentials()) {
+            // Set expiration in the past
+            setcookie(self::$usernameKey, '', time()-3600);
+            setcookie(self::$passwordKey, '', time()-3600);
 
-        // Unset variables so they do not accidentally get called later
-        unset($_COOKIE[self::$usernameKey]);
-        unset($_COOKIE[self::$passwordKey]);
+            // Unset variables so they do not accidentally get called later
+            unset($_COOKIE[self::$usernameKey]);
+            unset($_COOKIE[self::$passwordKey]);
+        }
     }
 
     /****************************************
@@ -214,7 +216,6 @@ class LoginView
         $checked = $this->userWantsToStayLoggedIn() ? 'checked=\"checked\"' : '';
 
         // Construct the form
-        // TODO: Get action from app-view...?
         return "
         <h2>Ej inloggad</h2>
 
@@ -237,8 +238,6 @@ class LoginView
             </fieldset>
         </form>";
     }
-
-    // TODO: Move these to a helper-class
 
     /**
      * Get variable $key from $_POST

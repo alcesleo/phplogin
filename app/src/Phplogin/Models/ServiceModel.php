@@ -65,4 +65,13 @@ class ServiceModel
         }
         return $this->tempStorage->insert($temppw);
     }
+
+    /**
+     * @param int $userid
+     * @return bool
+     */
+    public function deleteTemporaryPassword($userid)
+    {
+        $this->tempStorage->deleteByUser($userid);
+    }
 }

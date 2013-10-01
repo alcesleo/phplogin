@@ -103,4 +103,18 @@ class TemporaryPasswordStorageModel
 
         return $temppw;
     }
+
+    /**
+     * Delete a users temporary password
+     * @param int $userid
+     * @return bool true on success, false on failure
+     */
+    public function deleteByUser($userid)
+    {
+        $sql = "DELETE FROM " . self::$tableName . " WHERE UserID = :userid";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':userid', $userid, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
 }

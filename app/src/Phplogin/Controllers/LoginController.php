@@ -121,23 +121,23 @@ class LoginController
         return $this->loginView->getLoginSuccessHTML(LoginView::LOGGED_IN_WITH_COOKIES);
     }
 
-    // TODO: Should this be its own controller?
     /**
      * Log out the current user
      * @return string HTML logout success
      */
     private function logOut()
     {
+        // Delete cookies on client
+        $this->loginView->removeSavedCredentials();
+
         // Only show logged out messege if not already logged out
         if ($this->loginModel->logOut()) {
-            // Delete cookies on client
-            $this->loginView->removeSavedCredentials();
-
             // Show logout success-page
             return $this->loginView->getFormHTML(LoginView::LOGOUT_SUCCESS);
+        } else {
+            // TODO: Use a function for this?
+            header('Location: /');
         }
 
-        // TODO: Use a function for this?
-        header('Location: /');
     }
 }
