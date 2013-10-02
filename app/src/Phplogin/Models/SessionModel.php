@@ -86,7 +86,6 @@ class SessionModel
     }
 
     /**
-     * [getObject description]
      * @param  string $key
      * @return mixed       saved object
      * @throws NotFoundException If nothing is stored in $key
