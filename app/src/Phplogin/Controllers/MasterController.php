@@ -4,6 +4,7 @@ namespace Phplogin\Controllers;
 
 use Phplogin\Controllers\LoginController;
 use Phplogin\Models\ServiceModel;
+use Phplogin\Models\SessionModel;
 use Phplogin\Models\LoginModel;
 use Phplogin\Views\AppView;
 use PDO;
@@ -26,6 +27,8 @@ class MasterController
     public static function run()
     {
         // TODO: Refactor this
+        SessionModel::start();
+
         // Connect to database
         $pdo = new PDO(self::$dbConnectionString);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

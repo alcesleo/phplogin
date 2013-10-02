@@ -7,6 +7,7 @@ use Phplogin\Exceptions\NotAuthorizedException;
 use Phplogin\Exceptions\NotFoundException;
 use Phplogin\Models\EncryptionModel;
 use Phplogin\Models\ServiceModel;
+use Phplogin\Models\SessionModel as Session;
 use Phplogin\Models\TemporaryPasswordModel;
 use Phplogin\Models\UserModel;
 use Phplogin\Models\UserCredentialsModel;
@@ -136,7 +137,7 @@ class LoginModel
         if (! $this->isLoggedIn()) {
             throw new Exception('No user logged in');
         }
-        return unserialize($_SESSION[self::$sessionLoggedIn]);
+        return Session::getObject(self::$sessionLoggedIn);
     }
 
     /**
@@ -145,8 +146,8 @@ class LoginModel
      */
     private function persistLogin(UserModel $user)
     {
-        // TODO: Check for session theft
-        $_SESSION[self::$sessionLoggedIn] = serialize($user);
+        Session::saveSecurityData();
+        Session::saveObject($user, self::$sessionLoggedIn);
     }
 
 
@@ -196,7 +197,7 @@ class LoginModel
             $this->service->deleteTemporaryPassword($this->getLoggedInUserId());
 
             // Delete session variables
-            unset($_SESSION[self::$sessionLoggedIn]);
+            Session::delete(self::$sessionLoggedIn);
             return true;
         }
         return false;
@@ -208,7 +209,10 @@ class LoginModel
      */
     public function isLoggedIn()
     {
-        // TODO: May need a closer look...
-        return isset($_SESSION[self::$sessionLoggedIn]);
+        // True if session is secure and a UserModel is stored
+        if (Session::isSecurityValidated() && Session::exists(self::$sessionLoggedIn)) {
+            return Session::getObject(self::$sessionLoggedIn) instanceof UserModel;
+        }
+        return false;
     }
 }
