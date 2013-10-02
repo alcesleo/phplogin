@@ -10,16 +10,12 @@ use Exception;
 /**
  * Handles the form where a user can log in, the associated messages etc.
  */
-class LoginView
+class LoginView extends View
 {
     /**
      * @var LoginModel
      */
     private $loginModel;
-
-    // Get-pages
-    private static $loginPage = 'login';
-    private static $logoutPage = 'logout';
 
     // Variable-names for the input form.
     private static $passwordKey = 'LoginView::Password';
