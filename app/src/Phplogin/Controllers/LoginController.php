@@ -6,6 +6,7 @@ use Phplogin\Models\LoginModel;
 use Phplogin\Models\UserModel;
 use Phplogin\Views\LoginView;
 use Phplogin\Views\DateTimeView;
+use Phplogin\Views\View;
 use Phplogin\Exceptions\NotAuthorizedException;
 use Exception;
 
@@ -136,8 +137,7 @@ class LoginController
             // Show logout success-page
             return $this->loginView->getFormHTML(LoginView::LOGOUT_SUCCESS);
         } else {
-            // TODO: Use a function for this?
-            header('Location: /');
+            View::refresh();
         }
 
     }
