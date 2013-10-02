@@ -3,6 +3,7 @@
 namespace Phplogin\Models;
 
 use Phplogin\Models\UserModel;
+use Exception;
 
 class TemporaryPasswordModel
 {
@@ -22,18 +23,9 @@ class TemporaryPasswordModel
     private $password;
 
     /**
-     * If password is not set, generates a new random password.
-     * @param string  $temporaryPasswordHash optional passwordhash
+     * @var int
      */
-    public function __construct($temporaryPasswordHash = null)
-    {
-        // Set or generate password
-        if ($temporaryPasswordHash === null) {
-            $this->password = $this->generateRandomPassword();
-        } else {
-            $this->password = $temporaryPasswordHash;
-        }
-    }
+    private $expiration;
 
     /**
      * Matches the PASSWORD with another TemporaryPasswordModel
@@ -46,7 +38,6 @@ class TemporaryPasswordModel
         if ($this->password !== $temporaryPassword->password) {
             return false;
         }
-
         return true;
     }
 
@@ -55,7 +46,16 @@ class TemporaryPasswordModel
      */
     public function setUserId($userId)
     {
-        $this->userId = $userId;
+        $this->userId = intval($userId);
+    }
+
+    /**
+     * Returns userId
+     * @return int -1 if not set
+     */
+    public function getUserId()
+    {
+        return $this->userId;
     }
 
     /**
@@ -76,12 +76,11 @@ class TemporaryPasswordModel
     }
 
     /**
-     * Returns userId
-     * @return int -1 if not set
+     * @return string
      */
-    public function getUserId()
+    public function getUsername()
     {
-        return $this->userId;
+        return $this->username;
     }
 
     /**
@@ -93,18 +92,46 @@ class TemporaryPasswordModel
     }
 
     /**
-     * @return string
+     * @param string $hash 40 char encrypted password
      */
-    public function getUsername()
+    public function setTemporaryPassword($hash)
     {
-        return $this->username;
+        $this->password = $hash;
     }
 
     /**
-     * @return string random
+     * @param int $time
      */
-    private function generateRandomPassword()
+    public function setExpirationTime($time)
     {
-        return md5(uniqid(rand(), true));
+        $this->expiration = intval($time);
+    }
+
+    /**
+     * @return int
+     */
+    public function getExpirationTime()
+    {
+        return $this->expiration;
+    }
+
+    /**
+     * @return boolean true if expired, false if valid
+     * @throws Exception If no expiration time is set
+     */
+    public function isExpired()
+    {
+        if (! is_int($this->expiration)) {
+            throw new Exception('Expiration time not valid');
+        }
+        return time() > $this->expiration;
+    }
+
+    /**
+     * Generates a random password for itself
+     */
+    public function generateRandomPassword()
+    {
+        $this->password = md5(uniqid(rand(), true));
     }
 }

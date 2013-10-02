@@ -62,9 +62,8 @@ class LoginView extends View
      */
     public function saveUserCredentials(TemporaryPasswordModel $temppw)
     {
-        // TODO: Variable for time
-        setcookie(self::$usernameKey, $temppw->getUsername(), time() + 60);
-        setcookie(self::$passwordKey, $temppw->getTemporaryPassword(), time() + 60);
+        setcookie(self::$usernameKey, $temppw->getUsername(), $temppw->getExpirationTime());
+        setcookie(self::$passwordKey, $temppw->getTemporaryPassword(), $temppw->getExpirationTime());
     }
 
     /**
@@ -79,7 +78,8 @@ class LoginView extends View
         }
 
         // Construct temporary password
-        $ret = new TemporaryPasswordModel($_COOKIE[self::$passwordKey]);
+        $ret = new TemporaryPasswordModel();
+        $ret->setTemporaryPassword($_COOKIE[self::$passwordKey]);
         $ret->setUsername($_COOKIE[self::$usernameKey]);
         return $ret;
     }

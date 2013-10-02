@@ -108,6 +108,7 @@ class LoginController
         try {
             // Get usercredentials from form view
             $temppw = $this->loginView->getSavedCredentials();
+
             // Authenticate
             $user = $this->loginModel->logInWithTemporaryPassword($temppw);
         } catch (Exception $e) {

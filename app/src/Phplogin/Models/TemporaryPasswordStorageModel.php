@@ -33,14 +33,15 @@ class TemporaryPasswordStorageModel
     public function insert(TemporaryPasswordModel $temppw)
     {
         // Prepare statement
-        $sql = "INSERT INTO " . self::$tableName . " (UserID, TemporaryPassword)
-                VALUES (:userid, :password);";
+        $sql = "INSERT INTO " . self::$tableName . " (UserID, TemporaryPassword, ExpirationTime)
+                VALUES (:userid, :password, :expiration);";
 
         $stmt = $this->pdo->prepare($sql);
 
         // Bind values
         $stmt->bindValue(':userid', $temppw->getUserId(), PDO::PARAM_INT);
         $stmt->bindValue(':password', $temppw->getTemporaryPassword(), PDO::PARAM_STR);
+        $stmt->bindValue(':expiration', $temppw->getExpirationTime(), PDO::PARAM_INT);
 
         return $stmt->execute();
     }
@@ -53,13 +54,15 @@ class TemporaryPasswordStorageModel
     {
         // Prepare statement
         $sql = "UPDATE " . self::$tableName . "
-                SET TemporaryPassword = :password
+                SET TemporaryPassword = :password,
+                    ExpirationTime = :expiration
                 WHERE UserID = :userid";
         $stmt = $this->pdo->prepare($sql);
 
         // Bind values
         $stmt->bindValue(':userid', $temppw->getUserId(), PDO::PARAM_INT);
         $stmt->bindValue(':password', $temppw->getTemporaryPassword(), PDO::PARAM_STR);
+        $stmt->bindValue(':expiration', $temppw->getExpirationTime(), PDO::PARAM_INT);
 
         return $stmt->execute();
     }
@@ -98,8 +101,11 @@ class TemporaryPasswordStorageModel
             throw new NotFoundException();
         }
 
-        $temppw = new TemporaryPasswordModel($result['TemporaryPassword']);
-        $temppw->setUserId(3);
+        // Construct model
+        $temppw = new TemporaryPasswordModel();
+        $temppw->setTemporaryPassword($result['TemporaryPassword']);
+        $temppw->setUserId($result['UserID']);
+        $temppw->setExpirationTime($result['ExpirationTime']);
 
         return $temppw;
     }

@@ -68,7 +68,6 @@ class LoginModel
      */
     public function logInWithTemporaryPassword(TemporaryPasswordModel $temp)
     {
-        // FIXME: Duplicated code
         try {
             // Get user from database
             $user = $this->service->getUserByName($temp->getUsername());
@@ -98,7 +97,9 @@ class LoginModel
     {
         // Generate temporary password
         $temppw = new TemporaryPasswordModel();
+        $temppw->generateRandomPassword();
         $temppw->setUser($user);
+        $temppw->setExpirationTime(time() + 60); // TODO: Set this dynamically
 
         // Save on server
         $this->service->saveTemporaryPassword($temppw);
@@ -176,6 +177,10 @@ class LoginModel
      */
     private function authorizeTemporaryPassword(TemporaryPasswordModel $fromServer, TemporaryPasswordModel $fromClient)
     {
+        // Validate timestamp
+        if ($fromServer->isExpired()) {
+            return false;
+        }
         return $fromServer->match($fromClient);
     }
 
