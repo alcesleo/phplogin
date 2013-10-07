@@ -11,7 +11,7 @@ _Italics_ are future versions with thought goals.
 | v0.2.1  | Fix issues found in code review, resulting in big architectural changes, SQLite3 |
 | v0.2.2  | Temporary password saving in cookies to remember users                           |
 | v0.2.3  | Prevent cookie manipulation and session theft                                    |
-| _v0.3_  | Full compliance with [MVC] rules                                                 |
+| v0.3    | Full compliance with [MVC] rules                                                 |
 
 [UC12]: https://docs.google.com/document/d/1f53RvlJ2TgyI0EaQpBqI-6UpPo9bsqEjvNkeVP8yIGc/edit?pli=1
 [UC123]: https://docs.google.com/document/d/1kaAxV02vO2GlNgHmxEFMik_iYvLQMpErTtCifht9-Uc/edit?pli=1#heading=h.qwf701bxn3r6
