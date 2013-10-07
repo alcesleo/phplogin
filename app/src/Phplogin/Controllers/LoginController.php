@@ -3,9 +3,7 @@
 namespace Phplogin\Controllers;
 
 use Phplogin\Models\LoginModel;
-use Phplogin\Models\UserModel;
 use Phplogin\Views\LoginView;
-use Phplogin\Views\DateTimeView;
 use Phplogin\Views\View;
 use Phplogin\Exceptions\NotAuthorizedException;
 use Exception;
@@ -119,7 +117,6 @@ class LoginController
         }
 
         // TODO: Refresh the cookie
-
         return $this->loginView->getLoginSuccessHTML(LoginView::LOGGED_IN_WITH_COOKIES);
     }
 
