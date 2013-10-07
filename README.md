@@ -8,6 +8,10 @@
     It is a little redundant, but I think it's worth it to know what role a file has without
     looking at the folder/namespace. This works well with tabs in the editor.
 
+## Structure
+
+![](http://yuml.me/d132d910/)
+
 ## How to get it running
 
 Since I'm using Composers autoloading, you need to run a few commands before this code will run.
