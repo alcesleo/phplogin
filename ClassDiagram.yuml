@@ -1,0 +1,33 @@
+// Master
+[MasterController{bg:orange}]->[ServiceModel]
+[MasterController{bg:orange}]->[SessionModel]
+[MasterController{bg:orange}]->[LoginModel]
+[MasterController{bg:orange}]->[AppView{bg:green}]
+[MasterController{bg:orange}]->[LoginController{bg:orange}]
+// Service
+[ServiceModel]->[UserStorageModel]
+[ServiceModel]->[UserModel]
+[ServiceModel]->[TemporaryPasswordModel]
+[ServiceModel]->[TemporaryPasswordStorageModel]
+// LoginController{bg:orange}
+[LoginController{bg:orange}]->[LoginModel]
+[LoginController{bg:orange}]->[LoginView{bg:green}]
+[LoginController{bg:orange}]->[View{bg:green}]
+// LoginModel
+[LoginModel]->[ServiceModel]
+[LoginModel]->[EncryptionModel]
+[LoginModel]->[SessionModel]
+[LoginModel]->[TemporaryPasswordModel]
+[LoginModel]->[UserModel]
+[LoginModel]->[UserCredentialsModel]
+// TempPw
+[TemporaryPasswordModel]->[UserModel]
+[TemporaryPasswordStorageModel][TemporaryPasswordModel]
+// User
+[UserStorageModel]->[UserModel]
+// View{bg:green}s
+[AppView{bg:green}]->[LoginView{bg:green}]
+[AppView{bg:green}]->[DateTimeView{bg:green}]
+[LoginView{bg:green}]->[LoginModel]
+[LoginView{bg:green}]->[TemporaryPasswordModel]
+[LoginView{bg:green}]->[UserCredentialsModel]
