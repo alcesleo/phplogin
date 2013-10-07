@@ -15,11 +15,6 @@ use PDO;
  */
 class MasterController
 {
-    /**
-     * PDO access string
-     * @var string
-     */
-    private static $dbConnectionString = 'sqlite:db/users.sqlite';
 
     /**
      * Run the application
@@ -30,7 +25,7 @@ class MasterController
         SessionModel::start();
 
         // Connect to database
-        $pdo = new PDO(self::$dbConnectionString);
+        $pdo = new PDO(DATABASE_CONNECTION_STRING);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Open the db and give it to the LoginModel
