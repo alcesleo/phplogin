@@ -2,8 +2,6 @@
 
 namespace Phplogin\Models;
 
-use Phplogin\Models\TemporaryPasswordModel;
-use Phplogin\Models\UserStorageModel;
 use PDO;
 
 class ServiceModel
