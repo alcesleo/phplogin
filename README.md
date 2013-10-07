@@ -57,3 +57,14 @@ To run the tests:
 
     # run the tests
     codecept run
+
+## Todo
+
+- Move the tests, should they really be uploaded to the server?
+- Temp password expiration, same as cookie.
+- Split controllers into UC:s
+- Register users
+- Protect against evil tutors
+- Username 5+letters
+- Password require capitals etc
+- Error logging
